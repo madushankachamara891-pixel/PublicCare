@@ -18,8 +18,24 @@ dist-ssr
 !.env.example
 *.pem
 *.key
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
 credentials.json
 secrets.json
+credentials.*
+secrets.*
+*.secret
+*.token
+.aws/
+.ssh/
+
+# Local infrastructure state can contain credentials and resource metadata
+*.tfstate
+*.tfstate.*
 
 # Editor directories and files
 .vscode/*
