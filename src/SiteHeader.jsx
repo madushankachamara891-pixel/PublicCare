@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-
-const DEMO_AUTH_STORAGE_KEY = 'publiccareDemoSignedIn'
+import { useAuth } from './authContext.js'
+import { logoutAccount } from './authApi.js'
+import PublicCareLogo from './PublicCareLogo.jsx'
 
 function AccountMenuIcon({ name }) {
   const shared = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }
@@ -10,9 +11,21 @@ function AccountMenuIcon({ name }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true" {...shared}><path d="M10.5 4.5h-5v15h5M20.5 12h-10M14.5 8l-4 4 4 4"/></svg>
 }
 
+function scrollToHomeSection(event, sectionId) {
+  if (window.location.pathname !== '/') return
+
+  event.preventDefault()
+  window.history.pushState(null, '', `#${sectionId}`)
+  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+  document.getElementById(sectionId)?.scrollIntoView({ behavior, block: 'start' })
+}
+
 export default function SiteHeader({ active = '', reportsView = false, adminView = false, trackReportLabel = false }) {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
-  const [isDemoSignedIn, setIsDemoSignedIn] = useState(() => window.localStorage.getItem(DEMO_AUTH_STORAGE_KEY) === 'true')
+  const [logoutError, setLogoutError] = useState('')
+  const [logoutLoading, setLogoutLoading] = useState(false)
+  const { user, setUser } = useAuth()
+  const showAdminNavigation = adminView && user?.role === 'ADMIN'
   const accountMenuRef = useRef(null)
   const accountButtonRef = useRef(null)
 
@@ -37,18 +50,19 @@ export default function SiteHeader({ active = '', reportsView = false, adminView
     }
   }, [accountMenuOpen])
 
-  useEffect(() => {
-    function syncDemoAuth(event) {
-      if (event.key === DEMO_AUTH_STORAGE_KEY) setIsDemoSignedIn(event.newValue === 'true')
+  async function handleLogout() {
+    setLogoutError('')
+    setLogoutLoading(true)
+    try {
+      await logoutAccount()
+      setUser(null)
+      window.location.assign('/')
+    } catch (error) {
+      setLogoutError(error.message)
+      setAccountMenuOpen(true)
+    } finally {
+      setLogoutLoading(false)
     }
-    window.addEventListener('storage', syncDemoAuth)
-    return () => window.removeEventListener('storage', syncDemoAuth)
-  }, [])
-
-  function handleLogout() {
-    window.localStorage.removeItem(DEMO_AUTH_STORAGE_KEY)
-    setIsDemoSignedIn(false)
-    setAccountMenuOpen(false)
   }
 
   function handleAccountMenuKeyDown(event) {
@@ -79,36 +93,34 @@ export default function SiteHeader({ active = '', reportsView = false, adminView
     })
   }
 
-  const accountMenuId = adminView ? 'shared-admin-menu' : 'shared-account-menu'
+  const accountMenuId = showAdminNavigation ? 'shared-admin-menu' : 'shared-account-menu'
+  const homeSectionPrefix = window.location.pathname === '/' ? '' : '/'
 
-  return <header className={`topbar${adminView ? ' admin-topbar' : ''}`}>
-    <a className="brand" href="/" aria-label="PublicCare home"><span className="brand-mark">P</span><span className="brand-copy"><strong>PublicCare</strong><small>A better way to report local issues</small></span></a>
-    <nav className="navigation" aria-label="Main navigation">
-      <a className={active === 'home' ? 'active' : ''} href="/">Home</a><a href="/#process">How it works</a><a href="/#categories">Issue categories</a><a className={active === 'reports' ? 'active' : ''} href="/my-reports">{reportsView || trackReportLabel ? 'Track a report' : 'My Reports'}</a>
+  return <header className={`topbar${showAdminNavigation ? ' admin-topbar' : ''}`}>
+    <a className="brand" href="/" aria-label="PublicCare home"><PublicCareLogo className="brand-mark"/><span className="brand-copy"><strong>PublicCare</strong><small>A better way to report local issues</small></span></a>
+    <nav className={`navigation${showAdminNavigation ? ' admin-navigation' : ''}`} aria-label="Main navigation">
+      {showAdminNavigation ? <><a className={active === 'admin' ? 'active' : ''} aria-current={active === 'admin' ? 'page' : undefined} href="/admin">Admin Dashboard</a><a className={active === 'reports' ? 'active' : ''} aria-current={active === 'reports' ? 'page' : undefined} href="/admin/issues">Manage Issues</a></> : <>
+        <a className={active === 'home' ? 'active' : ''} href="/">Home</a><a href={`${homeSectionPrefix}#how-it-works`} onClick={(event) => scrollToHomeSection(event, 'how-it-works')}>How it works</a><a href={`${homeSectionPrefix}#issue-categories`} onClick={(event) => scrollToHomeSection(event, 'issue-categories')}>Issue categories</a><a className={active === 'reports' ? 'active' : ''} href="/my-reports">{reportsView || trackReportLabel ? 'Track a report' : 'My Reports'}</a>
+      </>}
     </nav>
-    <div className="nav-actions">{adminView ? <div className="account-menu-wrap" ref={accountMenuRef} onKeyDown={handleAccountMenuKeyDown} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setAccountMenuOpen(false) }}>
-      <button ref={accountButtonRef} className="login account-link" type="button" aria-haspopup="menu" aria-expanded={accountMenuOpen} aria-controls={accountMenuId} onClick={() => setAccountMenuOpen((open) => !open)} onKeyDown={handleAccountButtonKeyDown}>
-        Admin<span className={`account-chevron${accountMenuOpen ? ' is-open' : ''}`} aria-hidden="true" />
+    <div className="nav-actions">{showAdminNavigation ? <div className="admin-nav-actions"><div className="account-menu-wrap" ref={accountMenuRef} onKeyDown={handleAccountMenuKeyDown} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setAccountMenuOpen(false) }}>
+      <button ref={accountButtonRef} className="login account-link" type="button" aria-haspopup="dialog" aria-expanded={accountMenuOpen} aria-controls={accountMenuId} onClick={() => setAccountMenuOpen((open) => !open)} onKeyDown={handleAccountButtonKeyDown}>
+        Admin account<span className={`account-chevron${accountMenuOpen ? ' is-open' : ''}`} aria-hidden="true" />
       </button>
-      <div className="account-dropdown" id={accountMenuId} role="menu" aria-label="Admin navigation" hidden={!accountMenuOpen} onClick={(event) => { if (event.target.closest('[role="menuitem"]')) setAccountMenuOpen(false) }}>
-        <div className="account-dropdown-heading" role="presentation"><AccountMenuIcon name="user"/><span><strong>Admin</strong><small>Administration</small></span><i className={`account-chevron${accountMenuOpen ? ' is-open' : ''}`} aria-hidden="true"/></div>
-        <a className="account-menu-item" role="menuitem" href="/admin">Dashboard</a>
-        <a className="account-menu-item" role="menuitem" href="/admin/issues">Issue management</a>
-        <a className="account-menu-item" role="menuitem" href="/admin/update-issue">Update issue</a>
+      <div className="account-dropdown" id={accountMenuId} role="dialog" aria-label="Admin account" hidden={!accountMenuOpen}>
+        <div className="account-dropdown-heading" role="presentation"><AccountMenuIcon name="user"/><span><strong>{user.fullName}</strong><small>Administrator</small></span></div>
       </div>
-      <a className="get-started" href="/" onClick={handleLogout}>Log out</a>
-    </div> : reportsView ? <div className="account-menu-wrap" ref={accountMenuRef} onKeyDown={handleAccountMenuKeyDown} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setAccountMenuOpen(false) }}>
+      </div><button className="get-started" type="button" onClick={handleLogout} disabled={logoutLoading}>{logoutLoading ? 'Signing out…' : 'Log out'}</button></div> : user ? <div className="account-menu-wrap" ref={accountMenuRef} onKeyDown={handleAccountMenuKeyDown} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setAccountMenuOpen(false) }}>
       <button ref={accountButtonRef} className="login account-link" type="button" aria-label="My account" aria-haspopup="menu" aria-expanded={accountMenuOpen} aria-controls={accountMenuId} onClick={() => setAccountMenuOpen((open) => !open)} onKeyDown={handleAccountButtonKeyDown}>
         My account<span className={`account-chevron${accountMenuOpen ? ' is-open' : ''}`} aria-hidden="true" />
       </button>
       <div className="account-dropdown" id={accountMenuId} role="menu" aria-label="My account" hidden={!accountMenuOpen} onClick={(event) => { if (event.target.closest('a[role="menuitem"]')) setAccountMenuOpen(false) }}>
-        <div className="account-dropdown-heading" role="presentation"><AccountMenuIcon name="user"/><span><strong>My account</strong><small>Account menu</small></span><i className="account-chevron is-open" aria-hidden="true"/></div>
-        <div className="account-menu-item unavailable" role="menuitem" aria-disabled="true" tabIndex={0}><AccountMenuIcon name="user"/><span>My profile</span></div>
+        <div className="account-dropdown-heading" role="presentation"><AccountMenuIcon name="user"/><span><strong>{user.fullName}</strong><small>{user.role === 'ADMIN' ? 'Administrator' : 'Citizen account'}</small></span><i className="account-chevron is-open" aria-hidden="true"/></div>
+        {user.role === 'ADMIN' && <><a className="account-menu-item" role="menuitem" href="/admin">Dashboard</a><a className="account-menu-item" role="menuitem" href="/admin/issues">Issue management</a></>}
         <a className="account-menu-item" role="menuitem" href="/my-reports"><AccountMenuIcon name="reports"/><span>My Reports</span></a>
         <div className="account-menu-divider" role="separator" />
-        {isDemoSignedIn
-          ? <button className="account-menu-item" role="menuitem" type="button" onClick={handleLogout}><AccountMenuIcon name="logout"/><span>Log out</span></button>
-          : <a className="account-menu-item" role="menuitem" href="/login"><AccountMenuIcon name="login"/><span>Log in</span></a>}
+        <button className="account-menu-item" role="menuitem" type="button" onClick={handleLogout} disabled={logoutLoading}><AccountMenuIcon name="logout"/><span>{logoutLoading ? 'Signing out…' : 'Log out'}</span></button>
+        {logoutError && <p className="account-menu-error" role="alert">{logoutError}</p>}
       </div>
     </div> : <><a className="login" href="/login">Log in</a><a className="get-started" href="/create-issue">Get started</a></>}</div>
   </header>

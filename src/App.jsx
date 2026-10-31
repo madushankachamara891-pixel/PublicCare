@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import './App.css'
 import CreateIssue from './CreateIssue.jsx'
 import MyReports from './MyReports.jsx'
@@ -7,19 +8,31 @@ import AccountPage from './AccountPage.jsx'
 import AdminDashboard from './AdminDashboard.jsx'
 import AdminIssues from './AdminIssues.jsx'
 import AdminUpdateIssue from './AdminUpdateIssue.jsx'
+import SiteHeader from './SiteHeader.jsx'
+import { useAuth } from './authContext.js'
+import PublicReports from './PublicReports.jsx'
+import PublicReportDetails from './PublicReportDetails.jsx'
+import CategoryIllustration from './CategoryIllustration.jsx'
 
-const stats = [
-  { value: '1,240+', label: 'Issues reported', tone: 'red' },
-  { value: '860', label: 'Issues resolved', tone: 'green' },
-  { value: '24', label: 'Local areas represented' },
+function AdminAccessGate({ children }) {
+  const { user, loading, error } = useAuth()
+  if (loading) return <main className="site-shell auth-gate" aria-live="polite">Checking your PublicCare session…</main>
+  if (user?.role !== 'ADMIN') return <main className="site-shell auth-gate"><section><h1>Administrator access required</h1><p>{error || 'Sign in with an administrator account to open this page.'}</p><a className="button primary" href="/login">Log in</a></section></main>
+  return children
+}
+
+const highlights = [
+  { value: 'Report', label: 'an issue in your area' },
+  { value: 'Track', label: 'your submitted reports' },
+  { value: 'Follow', label: 'progress on your reports' },
   { value: 'Transparent', label: 'Updates you can follow' },
 ]
 
 const categories = [
-  { initials: 'RD', title: 'Road damage', description: 'Potholes and damaged roads', tone: 'blue' },
-  { initials: 'WG', title: 'Waste & garbage', description: 'Missed collections and litter', tone: 'mint' },
-  { initials: 'SL', title: 'Streetlights', description: 'Lights that are broken or off', tone: 'amber' },
-  { initials: 'DR', title: 'Drainage', description: 'Blocked drains and flooding', tone: 'purple' },
+  { title: 'Road damage', description: 'Potholes and damaged roads', tone: 'blue', illustration: 'road' },
+  { title: 'Waste & garbage', description: 'Missed collections and litter', tone: 'mint', illustration: 'waste' },
+  { title: 'Streetlights', description: 'Lights that are broken or off', tone: 'amber', illustration: 'streetlight' },
+  { title: 'Drainage', description: 'Blocked drains and flooding', tone: 'purple', illustration: 'drain' },
 ]
 
 const steps = [
@@ -30,9 +43,20 @@ const steps = [
 
 function App() {
   const path = window.location.pathname
-  if (path === '/admin') return <AdminDashboard />
-  if (path === '/admin/issues') return <AdminIssues />
-  if (path === '/admin/update-issue') return <AdminUpdateIssue />
+  useEffect(() => {
+    const sectionId = window.location.hash.slice(1)
+    if (!sectionId) return
+
+    requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [])
+
+  const publicReportMatch = path.match(/^\/public-reports\/(\d+)\/?$/)
+  if (publicReportMatch) return <PublicReportDetails id={publicReportMatch[1]} />
+  if (path === '/admin') return <AdminAccessGate><AdminDashboard /></AdminAccessGate>
+  if (path === '/admin/issues') return <AdminAccessGate><AdminIssues /></AdminAccessGate>
+  if (path === '/admin/update-issue') return <AdminAccessGate><AdminUpdateIssue /></AdminAccessGate>
   if (path === '/create-issue') return <CreateIssue />
   if (path === '/my-reports') return <MyReports />
   if (path === '/issue-details') return <IssueDetails />
@@ -41,19 +65,7 @@ function App() {
 
   return (
     <main className="site-shell">
-      <header className="topbar">
-        <a className="brand" href="/" aria-label="PublicCare home">
-          <span className="brand-mark">P</span>
-          <span className="brand-copy"><strong>PublicCare</strong><small>A better way to report local issues</small></span>
-        </a>
-        <nav className="navigation" aria-label="Main navigation">
-          <a className="active" href="/">Home</a>
-          <a href="#process">How it works</a>
-          <a href="#categories">Issue categories</a>
-          <a href="/my-reports">My Reports</a>
-        </nav>
-        <div className="nav-actions"><a className="login" href="/login">Log in</a><a className="get-started" href="/create-issue">Get started</a></div>
-      </header>
+      <SiteHeader active="home" />
 
       <section className="hero-section" id="home">
         <div className="hero-content">
@@ -66,37 +78,58 @@ function App() {
             <p className="hero-note">Free to use&nbsp; • &nbsp;Simple&nbsp; • &nbsp;Transparent</p>
           </div>
           <div className="overview-card">
-            <div className="overview-heading"><div><h2>Your community, in focus</h2><p>A sample of local reports</p></div><span className="live-badge">LIVE OVERVIEW</span></div>
-            <div className="overview-content">
-              <div className="map-illustration" aria-label="Illustration of a community map">
-                <i className="map-block block-one" /><i className="map-block block-two" />
-                <i className="road road-horizontal road-top" /><i className="road road-horizontal road-bottom" />
-                <i className="road road-vertical road-left" /><i className="road road-vertical road-right" />
-                <span className="map-pin pin-green">!</span><span className="map-pin pin-amber">!</span><span className="map-pin pin-navy">!</span>
+            <div className="overview-heading"><div><h2>Your community, in focus</h2><p>Location preview · Galle, Sri Lanka</p></div><span className="live-badge">DEMONSTRATION</span></div>
+            <div className="community-overview-content">
+              <div className="community-map-frame">
+                <iframe
+                  className="community-map"
+                  title="OpenStreetMap preview centred on Galle, Sri Lanka"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=80.205%2C6.020%2C80.235%2C6.045&layer=mapnik"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+                <span className="illustrative-marker marker-one" aria-label="Illustrative road damage marker">1</span>
+                <span className="illustrative-marker marker-two" aria-label="Illustrative streetlight marker">2</span>
+                <span className="illustrative-marker marker-three" aria-label="Illustrative drainage marker">3</span>
+                <span className="map-attribution">© OpenStreetMap contributors</span>
               </div>
-              <article className="issue-preview"><span className="status-badge">IN PROGRESS</span><h3>Streetlight not<br /> working</h3><p>Galle • Report #PC-1024</p></article>
+              <div className="community-map-details">
+                <p className="illustrative-note">Illustrative markers only. No citizen reports are shown.</p>
+                <ul className="marker-key" aria-label="Illustrative marker categories">
+                  <li><span>1</span> Road damage</li>
+                  <li><span>2</span> Streetlight</li>
+                  <li><span>3</span> Drainage</li>
+                </ul>
+                <article className="issue-preview">
+                  <span className="example-label">EXAMPLE ISSUE</span>
+                  <h3>Blocked roadside drain</h3>
+                  <p className="example-location">Galle, Sri Lanka</p>
+                  <span className="status-badge">Example status · Under review</span>
+                </article>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="stats-section" aria-label="PublicCare sample statistics">
-        <div className="stats-card">{stats.map((stat) => <div className="stat" key={stat.label}><strong className={stat.tone || ''}>{stat.value}</strong><span>{stat.label}</span></div>)}</div>
-        <p className="sample-note">Sample statistics for display</p>
+      <section className="stats-section" aria-label="PublicCare features">
+        <div className="stats-card">{highlights.map((highlight) => <div className="stat" key={highlight.label}><strong>{highlight.value}</strong><span>{highlight.label}</span></div>)}</div>
       </section>
 
-      <section className="categories-section" id="categories">
+      <section className="categories-section" id="issue-categories">
         <p className="section-kicker">REPORT A PUBLIC ISSUE</p>
         <h2>What needs attention?</h2>
         <p className="section-description">Choose a category to help us understand the problem.</p>
         <div className="category-grid">{categories.map((category) => <a className="category-card" href="/create-issue" key={category.title}>
-          <span className={`category-icon ${category.tone}`}>{category.initials}</span><strong>{category.title}</strong>
+          <span className={`category-icon ${category.tone}`}><CategoryIllustration type={category.illustration} /></span><strong>{category.title}</strong>
           <span className="category-description">{category.description}</span><span className="category-arrow">↗</span>
         </a>)}</div>
         <p className="sample-note category-note">Example issue categories</p>
       </section>
 
-      <section className="process-section" id="process">
+      <PublicReports />
+
+      <section className="process-section" id="how-it-works">
         <div className="process-intro"><p className="section-kicker">SIMPLE AND TRANSPARENT</p><h2>From report to resolution</h2></div>
         <div className="steps-grid">{steps.map((step) => <article className="step" key={step.number}><span className="step-number">{step.number}</span><h3>{step.title}</h3><p>{step.description}</p></article>)}</div>
       </section>

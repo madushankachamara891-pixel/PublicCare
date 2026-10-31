@@ -22,6 +22,9 @@
 
 * { box-sizing: border-box; }
 html { min-width: 320px; scroll-behavior: smooth; overflow-x: clip; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 body { width: 100%; margin: 0; min-width: 320px; min-height: 100vh; overflow-x: clip; }
 body, #root { min-height: 100vh; }
 .page-container { width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content-max)); margin-inline: auto; }

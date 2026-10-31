@@ -1,114 +1,99 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import SiteHeader from './SiteHeader.jsx'
-import { getReports } from './reportsData.js'
+import { getAdminReports, reportStatusLabel, setAdminReportPublicApproval } from './reportsApi.js'
+import SummaryIllustration from './SummaryIllustration.jsx'
 import './AdminIssues.css'
 
-const PAGE_SIZE = 3
-const toStatusClass = (status) => status.toLowerCase().replaceAll(' ', '-')
-const dateValue = (date) => new Date(`${date} 00:00:00`).getTime()
+const PAGE_SIZE = 10
+const statusClass = (status) => reportStatusLabel(status).toLowerCase().replaceAll(' ', '-')
 
 function downloadCsv(reports) {
-  const columns = [
-    ['Reference', 'id'], ['Issue title', 'title'], ['Category', 'category'],
-    ['Location', 'location'], ['Date reported', 'date'], ['Status', 'status'],
-  ]
+  const columns = [['Reference', 'reference'], ['Issue title', 'title'], ['Category', 'category'], ['Location', 'location'], ['Date reported', 'createdAt'], ['Status', 'status']]
   const escape = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`
-  const content = [columns.map(([label]) => escape(label)).join(','), ...reports.map((report) => columns.map(([, key]) => escape(report[key])).join(','))].join('\r\n')
+  const content = [columns.map(([label]) => escape(label)).join(','), ...reports.map((report) => columns.map(([, key]) => escape(key === 'status' ? reportStatusLabel(report[key]) : report[key])).join(','))].join('\r\n')
   const url = URL.createObjectURL(new Blob([content], { type: 'text/csv;charset=utf-8' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = 'publiccare-filtered-reports.csv'
-  link.click()
-  URL.revokeObjectURL(url)
+  const link = document.createElement('a'); link.href = url; link.download = 'publiccare-reports.csv'; link.click(); URL.revokeObjectURL(url)
 }
 
 export default function AdminIssues() {
-  const [reports] = useState(() => getReports())
-  const [hiddenIds, setHiddenIds] = useState([])
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('All categories')
-  const [status, setStatus] = useState('All statuses')
-  const [sortOrder, setSortOrder] = useState('newest')
-  const [page, setPage] = useState(1)
+  const [category, setCategory] = useState('')
+  const [status, setStatus] = useState('')
+  const [sortOrder, setSortOrder] = useState('desc')
+  const [page, setPage] = useState(0)
+  const [approvalPendingId, setApprovalPendingId] = useState(null)
+  const [approvalError, setApprovalError] = useState('')
 
-  const visibleReports = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase()
-    return reports.filter((report) => !hiddenIds.includes(report.id))
-      .filter((report) => category === 'All categories' || report.category === category)
-      .filter((report) => status === 'All statuses' || report.status === status)
-      .filter((report) => !query || [report.title, report.id, report.location, report.detailLocation].some((value) => value?.toLocaleLowerCase().includes(query)))
-      .sort((a, b) => (dateValue(a.date) - dateValue(b.date)) * (sortOrder === 'newest' ? -1 : 1))
-  }, [reports, hiddenIds, search, category, status, sortOrder])
+  const load = useCallback(async () => {
+    setLoading(true); setError('')
+    try { setData(await getAdminReports({ page, size: PAGE_SIZE, q: search.trim(), category, status, sort: 'createdAt', direction: sortOrder })) }
+    catch (requestError) { setError(requestError.message) }
+    finally { setLoading(false) }
+  }, [category, page, search, sortOrder, status])
+  useEffect(() => {
+    let active = true
+    getAdminReports({ page, size: PAGE_SIZE, q: search.trim(), category, status, sort: 'createdAt', direction: sortOrder })
+      .then((result) => { if (active) { setData(result); setError('') } })
+      .catch((requestError) => { if (active) setError(requestError.message) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [category, page, search, sortOrder, status])
 
-  const pageCount = Math.max(1, Math.ceil(visibleReports.length / PAGE_SIZE))
-  const currentPage = Math.min(page, pageCount)
-  const pageReports = visibleReports.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-  const counts = reports.filter((report) => !hiddenIds.includes(report.id)).reduce((acc, report) => {
-    const key = report.status.toLowerCase()
-    acc[key] = (acc[key] || 0) + 1
-    return acc
-  }, {})
-
-  function resetFilters() {
-    setSearch('')
-    setCategory('All categories')
-    setStatus('All statuses')
-    setSortOrder('newest')
-    setPage(1)
-  }
-
-  function confirmDemoHide(report) {
-    const confirmed = window.confirm(`Hide ${report.id} from this demo view? This does not permanently delete or change the saved report.`)
-    if (confirmed) setHiddenIds((ids) => [...ids, report.id])
+  const summary = data?.summary || { total: 0, pending: 0, inProgress: 0, resolved: 0 }
+  const categories = [...new Set(['Road damage', 'Waste & garbage', 'Streetlights', 'Drainage', 'Water supply', 'Other public issue', ...Object.keys(summary.categories || {})])].sort()
+  const reports = data?.content || []
+  function resetFilters() { setSearch(''); setCategory(''); setStatus(''); setSortOrder('desc'); setPage(0) }
+  async function changePublicApproval(report) {
+    const approved = !report.publicApproved
+    setApprovalPendingId(report.id); setApprovalError('')
+    try {
+      const result = await setAdminReportPublicApproval(report.id, approved)
+      setData((current) => current && ({ ...current, content: current.content.map((item) => item.id === report.id ? { ...item, publicApproved: result.approved } : item) }))
+    } catch (requestError) { setApprovalError(requestError.message) }
+    finally { setApprovalPendingId(null) }
   }
 
   return <main className="site-shell admin-page admin-issues-page">
     <SiteHeader active="reports" adminView reportsView trackReportLabel />
-    <section className="admin-banner admin-issues-banner">
-      <div className="admin-banner-inner">
-        <p className="admin-breadcrumbs"><a href="/">Home</a><span>/</span><a href="/admin">Admin</a><span>/</span><span>Issue management</span></p>
-        <div className="admin-banner-row"><div><h1>Issue management</h1><p>View, search and manage public issue reports.</p></div><a className="admin-new-issue" href="/create-issue"><span aria-hidden="true">＋</span> New issue</a></div>
-      </div>
-    </section>
-
+    <section className="admin-banner admin-issues-banner"><div className="admin-banner-inner">
+      <p className="admin-breadcrumbs"><a href="/">Home</a><span>/</span><a href="/admin">Admin</a><span>/</span><span>Issue management</span></p>
+      <div className="admin-banner-row"><div><h1>Issue management</h1><p>View, search and manage public issue reports.</p></div></div>
+    </div></section>
     <section className="admin-issues-content">
       <div className="admin-summary" aria-label="Issue summary">
-        <article className="admin-stat-card"><div className="admin-stat-top"><span className="admin-stat-icon blue">#</span><span>Total reports</span></div><strong>{reports.length - hiddenIds.length}</strong><small>All sample reports</small></article>
-        <article className="admin-stat-card"><div className="admin-stat-top"><span className="admin-stat-icon amber">!</span><span>Pending</span></div><strong>{counts.pending || 0}</strong><small>Awaiting review</small></article>
-        <article className="admin-stat-card"><div className="admin-stat-top"><span className="admin-stat-icon sky">↻</span><span>In progress</span></div><strong>{counts['in progress'] || 0}</strong><small>Currently being handled</small></article>
-        <article className="admin-stat-card"><div className="admin-stat-top"><span className="admin-stat-icon green">✓</span><span>Resolved</span></div><strong>{counts.resolved || 0}</strong><small>Marked as resolved</small></article>
+        {[
+          { label: 'Total Reports', value: summary.total, detail: 'All reports', tone: 'blue', illustration: 'total' },
+          { label: 'Pending', value: summary.pending, detail: 'Awaiting review', tone: 'amber', illustration: 'pending' },
+          { label: 'In Progress', value: summary.inProgress, detail: 'Work underway', tone: 'sky', illustration: 'in-progress' },
+          { label: 'Resolved', value: summary.resolved, detail: 'Completed reports', tone: 'green', illustration: 'resolved' },
+        ].map((stat) => <article className={`admin-stat-card ${stat.tone}`} key={stat.label}>
+          <div className="admin-stat-copy"><div className="admin-stat-top"><span>{stat.label}</span></div><strong>{stat.value}</strong><small>{stat.detail}</small></div>
+          <span className={`admin-stat-illustration ${stat.tone}`}><SummaryIllustration type={stat.illustration} /></span>
+        </article>)}
       </div>
-
       <section className="admin-panel issue-management-panel">
-        <div className="issues-panel-heading"><div><h2>All issue reports</h2><p>Search and filter reports, then choose an action for an issue.</p></div><button className="issues-export-button" type="button" onClick={() => downloadCsv(visibleReports)} disabled={!visibleReports.length}>Export CSV</button></div>
+        <div className="issues-panel-heading"><div><h2>All issue reports</h2><p>Search and filter reports, then choose an action for an issue.</p></div><button className="issues-export-button" type="button" onClick={() => downloadCsv(reports)} disabled={!reports.length}>Export current page</button></div>
         <div className="issues-filters" role="search">
-          <label className="issues-search"><span aria-hidden="true">⌕</span><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} placeholder="Search by title, reference or location" aria-label="Search by title, reference or location" /></label>
-          <select value={category} onChange={(event) => { setCategory(event.target.value); setPage(1) }} aria-label="Filter by category"><option>All categories</option>{[...new Set(reports.map((report) => report.category))].sort().map((item) => <option key={item}>{item}</option>)}</select>
-          <select value={status} onChange={(event) => { setStatus(event.target.value); setPage(1) }} aria-label="Filter by status"><option>All statuses</option>{['Pending', 'In progress', 'Resolved'].map((item) => <option key={item}>{item}</option>)}</select>
-          <select value={sortOrder} onChange={(event) => { setSortOrder(event.target.value); setPage(1) }} aria-label="Sort reports by date"><option value="newest">Newest first ↓</option><option value="oldest">Oldest first ↑</option></select>
+          <label className="issues-search"><span aria-hidden="true">⌕</span><input type="search" value={search} onChange={(event) => { setPage(0); setSearch(event.target.value) }} placeholder="Search by title, reference or location" aria-label="Search by title, reference or location" /></label>
+          <select value={category} onChange={(event) => { setPage(0); setCategory(event.target.value) }} aria-label="Filter by category"><option value="">All categories</option>{categories.map((item) => <option key={item}>{item}</option>)}</select>
+          <select value={status} onChange={(event) => { setPage(0); setStatus(event.target.value) }} aria-label="Filter by status"><option value="">All statuses</option>{[['PENDING', 'Pending'], ['IN_PROGRESS', 'In progress'], ['RESOLVED', 'Resolved']].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+          <select value={sortOrder} onChange={(event) => { setPage(0); setSortOrder(event.target.value) }} aria-label="Sort reports by date"><option value="desc">Newest first ↓</option><option value="asc">Oldest first ↑</option></select>
           <button className="issues-reset-button" type="button" onClick={resetFilters}>Reset</button>
         </div>
-
+        {error && <p role="alert" className="update-save-error">{error} <button type="button" onClick={load}>Try again</button></p>}
+        {approvalError && <p role="alert" className="update-save-error">{approvalError}</p>}
+        {loading && <p role="status">Loading reports…</p>}
         <div className="issues-table-wrap"><table className="issues-table">
-          <thead><tr><th scope="col">Reference</th><th scope="col">Issue title</th><th scope="col">Category</th><th scope="col">Location</th><th scope="col">Date reported</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
-          <tbody>{pageReports.map((report) => <tr key={report.id}>
-            <td><a className="issues-reference" href={`/issue-details?id=${encodeURIComponent(report.id)}`}>{report.id}</a></td><td className="issues-title-cell">{report.title}</td><td>{report.category}</td><td>{report.location}</td><td className="issues-date-cell">{report.date}</td>
-            <td><span className={`issues-status ${toStatusClass(report.status)}`}>{report.status}</span></td>
-            <td><div className="issues-row-actions"><a href={`/issue-details?id=${encodeURIComponent(report.id)}`}>View</a><a href={`/admin/update-issue?id=${encodeURIComponent(report.id)}`}>Edit</a><button type="button" onClick={() => confirmDemoHide(report)}>Delete</button></div></td>
-          </tr>)}
-          {!pageReports.length && <tr><td className="issues-empty" colSpan="7">No reports match your search or filters.</td></tr>}
-          </tbody>
+          <thead><tr><th scope="col">Reference</th><th scope="col">Issue title</th><th scope="col">Category</th><th scope="col">Location</th><th scope="col">Date reported</th><th scope="col">Status</th><th scope="col">Public display</th><th scope="col">Actions</th></tr></thead>
+          <tbody>{reports.map((report) => <tr key={report.id}><td><a className="issues-reference" href={`/admin/update-issue?id=${report.id}`}>{report.reference}</a></td><td className="issues-title-cell">{report.title}</td><td>{report.category}</td><td>{report.location}</td><td className="issues-date-cell">{new Date(report.createdAt).toLocaleDateString()}</td><td><span className={`issues-status ${statusClass(report.status)}`}>{reportStatusLabel(report.status)}</span></td><td><div className="issues-public-approval"><span>{report.publicApproved ? 'Approved' : 'Private'}</span><button type="button" onClick={() => changePublicApproval(report)} disabled={approvalPendingId === report.id}>{approvalPendingId === report.id ? 'Saving…' : report.publicApproved ? 'Revoke' : 'Approve'}</button></div></td><td><div className="issues-row-actions"><a href={`/admin/update-issue?id=${report.id}`}>View / update</a></div></td></tr>)}
+          {!loading && !reports.length && <tr><td className="issues-empty" colSpan="8">No reports match your search or filters.</td></tr>}</tbody>
         </table></div>
-
-        <div className="issues-table-footer"><p>Showing {visibleReports.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0}–{Math.min(currentPage * PAGE_SIZE, visibleReports.length)} of {visibleReports.length} reports</p><span className="issues-page-size">Rows per page: {PAGE_SIZE}</span><nav className="issues-pagination" aria-label="Report pages">
-          <button type="button" aria-label="Previous page" disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>←</button>
-          {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => <button key={number} type="button" aria-current={number === currentPage ? 'page' : undefined} className={number === currentPage ? 'current' : ''} onClick={() => setPage(number)}>{number}</button>)}
-          <button type="button" aria-label="Next page" disabled={currentPage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>→</button>
-        </nav></div>
-        <p className="issues-demo-note">Sample reports are stored locally for this demo. Delete only hides a report until you reload the page.</p>
+        {data && <div className="issues-table-footer"><p>Showing {data.totalElements ? page * PAGE_SIZE + 1 : 0}–{Math.min((page + 1) * PAGE_SIZE, data.totalElements)} of {data.totalElements} reports</p><span className="issues-page-size">Rows per page: {PAGE_SIZE}</span><nav className="issues-pagination" aria-label="Report pages"><button type="button" aria-label="Previous page" disabled={page <= 0} onClick={() => setPage((value) => value - 1)}>←</button><span>{page + 1} / {Math.max(data.totalPages, 1)}</span><button type="button" aria-label="Next page" disabled={page + 1 >= data.totalPages} onClick={() => setPage((value) => value + 1)}>→</button></nav></div>}
       </section>
-
-      <aside className="issues-management-note"><strong>Built for clear issue management</strong><span>Create new reports, read and search existing issues, edit details, and delete with confirmation.</span></aside>
+      <aside className="issues-management-note"><strong>Report management</strong><span>Report changes are saved to the PublicCare database and are available to authorized administrators.</span></aside>
     </section>
     <footer className="footer"><strong>PublicCare</strong><span>A clearer path from reporting to resolution.</span></footer>
   </main>

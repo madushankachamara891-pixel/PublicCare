@@ -1,4 +1,5 @@
-export const reports = [
+// Browser-only sample fixtures used by the issue workflow demos. These are not account reports or backend data.
+export const demoReports = [
   { id: 'PC-2048', title: 'Streetlight not working', category: 'Streetlights', location: 'Galle', detailLocation: 'Galle, Southern Province', date: '24 Oct 2026', status: 'In progress', updated: '27 Oct 2026', description: 'The streetlight near the community road is not working at night, making the area difficult to use safely.', additionalInformation: 'The issue is near the junction by the public playground.', photo: 'streetlight.jpg' },
   { id: 'PC-2042', title: 'Garbage not collected', category: 'Waste & garbage', location: 'Matara', date: '22 Oct 2026', status: 'Pending', updated: '25 Oct 2026', description: 'The scheduled garbage collection was missed on this street.', additionalInformation: 'Residents report this was the scheduled collection day.' },
   { id: 'PC-2037', title: 'Large pothole near school', category: 'Road damage', location: 'Galle', date: '19 Oct 2026', status: 'Resolved', updated: '23 Oct 2026', description: 'A large pothole near the school entrance needs attention.', additionalInformation: 'The pothole is beside the school entrance.' },
@@ -26,8 +27,8 @@ export function getStatusProgress(status) {
   }
 }
 
-export function getReportById(id) {
-  const report = reports.find((item) => item.id === id)
+export function getDemoReportById(id) {
+  const report = demoReports.find((item) => item.id === id)
   if (!report) return null
   try {
     const edits = JSON.parse(localStorage.getItem(`publiccare-${report.id}`) || '{}')
@@ -35,20 +36,20 @@ export function getReportById(id) {
   } catch { return report }
 }
 
-export function getSelectedReport() {
+export function getSelectedDemoReport() {
   const id = new URLSearchParams(window.location.search).get('id')
-  return getReportById(id) || getReportById(reports[0].id)
+  return getDemoReportById(id) || getDemoReportById(demoReports[0].id)
 }
 
-export function getReports() {
-  return reports.map((report) => getReportById(report.id))
+export function getDemoReports() {
+  return demoReports.map((report) => getDemoReportById(report.id))
 }
 
-export function saveReportUpdates(id, updates) {
-  const report = reports.find((item) => item.id === id)
+export function saveDemoReportUpdates(id, updates) {
+  const report = demoReports.find((item) => item.id === id)
   const status = normalizeStatus(updates?.status)
   if (!report || !status || typeof updates?.adminUpdateNote !== 'string') return false
-  let existing = {}
+  let existing
   try {
     existing = JSON.parse(localStorage.getItem(`publiccare-${id}`) || '{}')
     if (!existing || typeof existing !== 'object' || Array.isArray(existing)) return false

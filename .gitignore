@@ -12,10 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Backend build output
+backend/target/
+
 # Environment files and local credentials
 .env
 .env.*
 !.env.example
+backend/.env
 *.pem
 *.key
 *.p8

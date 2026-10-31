@@ -12,7 +12,9 @@
 .tracking-banner-row h1{margin:0 0 3px;color:#153957;font-size:clamp(2rem,3.4vw,2.5rem);line-height:1.2}
 .tracking-banner-row p{margin:0;color:#6d8580;font-size:.9375rem}
 .reference-pill{min-width:155px;padding:7px 12px;border-radius:20px;background:#e7f8ee;color:#13866f;text-align:center;font-size:.75rem;font-weight:700}
-.tracking-content{width:min(100%,var(--content-max));margin-inline:auto;flex:1;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,1fr);grid-template-areas:"summary progress" "update help";align-content:start;gap:18px 20px;padding:20px var(--page-gutter) 42px}
+.tracking-content{width:min(100%,var(--content-max));margin-inline:auto;flex:1;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,1fr);grid-template-areas:"notice notice" "summary progress" "update help";align-content:start;gap:18px 20px;padding:20px var(--page-gutter) 42px}
+.demo-data-notice{grid-area:notice;display:flex;align-items:center;gap:10px;padding:12px 15px;border:1px solid #cfe7db;border-radius:9px;background:#e8f6ef;color:#385b56;font-size:.875rem;line-height:1.5}
+.demo-data-notice strong{flex:0 0 auto;color:#12866f;font-weight:700}
 .issue-summary-card,.progress-card{min-width:0;padding:18px 19px;border:1px solid #e0e8ed;border-radius:12px;background:#fff}
 .issue-summary-card{grid-area:summary}
 .issue-summary-card>h2{margin:0 0 9px;color:#153957;font-size:1.25rem;line-height:1.35}
@@ -26,6 +28,11 @@
 .issue-copy{margin-top:8px}
 .issue-copy h3,.attached-photo h3{margin:0 0 6px}
 .issue-copy p{margin:0;color:#24394d;font-size:.9375rem;line-height:1.45}
+.attached-photo{margin-top:19px;padding-top:13px;border-top:1px solid #e8edf0}
+.attached-photo h3{margin:0 0 9px;color:#687b8c;font-size:.6875rem;font-weight:700;letter-spacing:.15px}
+.report-photo{display:block;width:100%;max-height:420px;object-fit:contain;object-position:left center;border:1px solid #e1e9ee;border-radius:8px;background:#f5f8fa}
+.photo-state{margin:0;color:#75889a;font-size:.875rem;line-height:1.5}
+.photo-error{color:#a33d35}
 .additional-info{margin-top:20px}
 .additional-info p{color:#738397}
 .attached-photo{margin-top:19px;padding-top:13px;border-top:1px solid #e8edf0}
@@ -46,7 +53,7 @@
 .progress-timeline li>div{display:grid;align-content:start;gap:3px;padding:1px 0 10px}
 .progress-timeline strong{color:#173b5b;font-size:.875rem;line-height:1.3}
 .progress-timeline small,.progress-timeline p{margin:0;color:#75879a;font-size:.75rem;line-height:1.35}
-.updates-note{margin:auto 0 0;padding:13px 11px;border-radius:8px;background:#d8f2c9;color:#344a3e;font-size:.8125rem;line-height:1.4}
+.updates-note{margin:auto 0 0;padding:13px 11px;border-radius:8px;background:#d8f2c9;color:#344a3e;font-size:.8125rem;line-height:1.4}.updates-note strong{display:block;margin-bottom:5px;color:#173b5b;font-size:.8125rem}.updates-note p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.updates-note:not(.has-admin-update){color:#617569}
 .update-report-card{grid-area:update;display:flex;flex-direction:column;justify-content:space-between;gap:13px;min-height:99px;padding:14px 16px;border-radius:10px;background:#a3e5b1}
 .update-report-card h2,.help-card h2{margin:0 0 4px;color:#173b5b;font-size:1rem;line-height:1.3}
 .update-report-card p{margin:0;color:#6d8578;font-size:.8125rem;line-height:1.4}
@@ -57,7 +64,7 @@
 .help-icon{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:8px;background:#eaf8ee;color:#12866f;font-size:1rem;font-weight:700}
 .help-card p{margin:6px 0 0;color:#344a3e;font-size:.8125rem;line-height:1.4}
 .issue-tracking-page>.footer{flex:0 0 auto;min-height:43px;margin-top:auto;border-top:1px solid #e5ebef}
-@media(max-width:760px){.tracking-content{grid-template-columns:minmax(0,1fr);grid-template-areas:"summary" "progress" "update" "help";gap:14px;padding:17px var(--page-gutter) 30px}.issue-tracking-page .detail-inner{padding:14px var(--page-gutter) 18px}.issue-summary-card,.progress-card{padding:16px}.progress-card{min-height:340px}.update-report-card,.help-card{min-height:unset}}
+@media(max-width:760px){.tracking-content{grid-template-columns:minmax(0,1fr);grid-template-areas:"notice" "summary" "progress" "update" "help";gap:14px;padding:17px var(--page-gutter) 30px}.demo-data-notice{align-items:flex-start;flex-direction:column;gap:4px}.issue-tracking-page .detail-inner{padding:14px var(--page-gutter) 18px}.issue-summary-card,.progress-card{padding:16px}.progress-card{min-height:340px}.update-report-card,.help-card{min-height:unset}}
 @media(max-width:460px){.tracking-banner-row{align-items:flex-start;flex-direction:column}.reference-pill{min-width:0}.issue-facts{grid-template-columns:1fr 1fr}.issue-summary-meta{align-items:flex-start;flex-direction:column;gap:7px}.tracking-buttons{align-items:stretch;flex-direction:column}.back-reports-button,.edit-my-issue-button{width:100%}.update-report-card{padding:13px}}
 
 /* Edit My Issue page */
@@ -70,6 +77,7 @@
 .edit-banner-row h1{margin:0 0 3px;color:#153957;font-size:clamp(2rem,3.4vw,2.5rem);line-height:1.2}
 .edit-banner-row p{margin:0;color:#6d8580;font-size:.9375rem}
 .edit-issue-layout{width:min(100%,var(--content-max));margin-inline:auto;flex:1;display:grid;grid-template-columns:minmax(0,1.72fr) minmax(320px,.92fr);align-items:start;gap:20px;padding:22px var(--page-gutter) 42px}
+.edit-issue-layout .demo-data-notice{grid-area:auto;grid-column:1/-1;width:100%}
 .edit-issue-form{min-width:0;padding:18px 22px 20px;border:1px solid #e0e8ed;border-radius:12px;text-align:left}
 .edit-form-heading{margin:0 0 15px}
 .edit-form-heading h2{margin:0 0 2px;color:#153957;font-size:1.25rem;line-height:1.3}
@@ -114,12 +122,12 @@
 .site-shell.account-page.login-page{width:100%;max-width:none;min-height:100vh;display:flex;flex-direction:column;background:#f4f8fa;color:#173b5b}
 .account-header{height:58px;flex:0 0 58px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--page-gutter);border-bottom:1px solid #e6ecef;background:#fff}
 .account-brand{display:flex;align-items:center;gap:9px;color:#173b5b;text-decoration:none}
-.account-brand-mark{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#138a70;color:#fff;font-size:1rem;font-weight:700}
+.account-brand-mark{width:28px;height:28px;flex:0 0 auto}
 .account-brand>span:last-child{display:grid;gap:1px}.account-brand strong{font-size:.9375rem;font-weight:650}.account-brand small{color:#748598;font-size:.6875rem;line-height:1.2}
 .back-home-link{color:#38536b;font-size:.8125rem;text-decoration:none}.back-home-link:hover{text-decoration:underline}
 .login-canvas{width:min(100%,1600px);margin-inline:auto;flex:1;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.08fr);align-items:stretch;gap:26px;padding:29px var(--page-gutter) 24px;background:#f4f8fa}
 .login-welcome-panel{display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:28px 27px 18px;border-radius:14px;background:#a3e5b1}
-.login-mark{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:#138a70;color:#fff;font-size:1.25rem}
+.login-mark{width:36px;height:36px;display:block;flex:0 0 auto}
 .login-welcome-panel h1{margin:24px 0 13px;color:#173b5b;font-size:1.5rem;line-height:1.35;font-weight:450}.login-welcome-panel h1 strong{font-size:1.75rem;font-weight:500}
 .welcome-copy{max-width:300px;margin:0;color:#24464c;font-size:.9375rem;line-height:1.35}
 .welcome-steps{display:grid;gap:22px;margin:34px 0 30px;padding:0;list-style:none}
@@ -135,6 +143,8 @@
 .login-options{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-1px 0 20px}.remember-option{display:flex!important;align-items:center;gap:6px;margin:0!important;color:#34495d!important;font-size:.75rem!important;font-weight:400!important}.remember-option input{width:13px;height:13px;margin:0;accent-color:#138a70}
 .forgot-password{padding:0;border:0;background:transparent;color:#12866f;font:inherit;font-size:.75rem;cursor:pointer}.forgot-password:hover{text-decoration:underline}
 .login-submit{width:100%;min-height:36px;border:0;border-radius:7px;background:#138a70;color:#fff;text-align:left;padding:8px 10px;font:inherit;font-size:.8125rem;cursor:pointer}.login-submit:hover{background:#0f795f}
+.login-submit:focus-visible,.password-field button:focus-visible,.forgot-password:focus-visible{outline:2px solid #087e68;outline-offset:3px}
+.register-feedback:not(.success){background:#fff0ed;color:#a4463a}
 .login-divider{display:flex;align-items:center;gap:16px;margin:15px 0;color:#788a9c;font-size:.75rem}.login-divider::before,.login-divider::after{height:1px;flex:1;background:#e5ebef;content:""}
 .create-account-prompt{display:flex;align-items:center;justify-content:center;gap:22px;margin:5px 0 24px;color:#718398;font-size:.8125rem}.create-account-prompt a{color:#12866f;text-decoration:none}.create-account-prompt a:hover{text-decoration:underline}
 .secure-signin{padding:12px 13px;border-radius:9px;background:#e2f5ee}.secure-signin strong{color:#294c55;font-size:.8125rem;font-weight:500}.secure-signin p{margin:4px 0 0;color:#718b83;font-size:.6875rem;line-height:1.4}
@@ -165,3 +175,4 @@
 .register-feedback{margin:10px 0 0;padding:9px 10px;border-radius:7px;background:#e2f5ee;color:#2d6557;font-size:.8125rem;line-height:1.4}
 @media(max-width:720px){.register-canvas{grid-template-columns:1fr}.register-welcome-panel .welcome-steps{margin-top:24px}}
 @media(max-width:420px){.register-welcome-panel h1{margin-top:16px;font-size:1.5rem}.register-form-card{padding:20px 16px}.register-form-card .login-form-heading{margin-bottom:18px}.register-login-prompt{gap:8px}}
+.citizen-progress-history{margin-top:15px;padding-top:13px;border-top:1px solid #e8edf0}.citizen-progress-history h3{margin:0 0 10px;color:#173b5b;font-size:.9375rem}.citizen-progress-history>p{color:#75889a;font-size:.8125rem}.citizen-progress-history ol{display:grid;gap:12px;margin:0;padding:0;list-style:none}.citizen-progress-history li{display:grid;grid-template-columns:auto 1fr;gap:7px 10px;align-items:center;padding:11px;border:1px solid #e5ebef;border-radius:8px}.citizen-progress-history time{color:#75889a;font-size:.75rem;text-align:right}.citizen-progress-history li>p,.citizen-progress-history li>small{grid-column:1/-1;margin:0;color:#334b5d;font-size:.8125rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.progress-history-photo{grid-column:1/-1;display:block;width:100%;max-height:300px;object-fit:contain;border:1px solid #e1e9ee;border-radius:7px;background:#f5f8fa}
