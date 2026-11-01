@@ -8,18 +8,21 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import lk.publiccare.backend.config.WebSecurityConfig;
 import lk.publiccare.backend.security.PublicCarePrincipal;
 import lk.publiccare.backend.user.UserRole;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -28,14 +31,18 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
 @WebMvcTest({ReportController.class, AdminReportController.class, PublicReportController.class})
 @Import(WebSecurityConfig.class)
+@ExtendWith(OutputCaptureExtension.class)
 class ReportControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean ReportService service;
     @MockitoBean ReportImageService imageService;
     @MockitoBean ReportProgressService progressService;
+    @MockitoBean ReportDeletionService deletionService;
     @MockitoBean PublicReportService publicReportService;
 
     private UsernamePasswordAuthenticationToken citizen() {
@@ -255,6 +262,37 @@ class ReportControllerTest {
     void adminReportApiRequiresAdminRole() throws Exception {
         mvc.perform(get("/api/admin/reports").with(user("citizen@example.com").roles("CITIZEN"))).andExpect(status().isForbidden());
         mvc.perform(get("/api/admin/reports").with(user("admin@example.com").roles("ADMIN"))).andExpect(status().isOk());
+    }
+
+    @Test
+    void onlyAuthenticatedAdminsCanDeleteReportsAndDeleteRequiresCsrf() throws Exception {
+        mvc.perform(delete("/api/admin/reports/51").with(csrf()).with(authentication(admin())))
+                .andExpect(status().isNoContent());
+        verify(deletionService).deleteAdmin(51L);
+
+        org.mockito.Mockito.reset(deletionService);
+        mvc.perform(delete("/api/admin/reports/51").with(csrf()))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(delete("/api/admin/reports/51").with(csrf()).with(authentication(citizen())))
+                .andExpect(status().isForbidden());
+        mvc.perform(delete("/api/admin/reports/51").with(user("admin@example.com").roles("ADMIN")))
+                .andExpect(status().isForbidden());
+        org.mockito.Mockito.verifyNoInteractions(deletionService);
+    }
+
+    @Test
+    void deleteFailureIsLoggedServerSideAndReturnsGenericError(CapturedOutput output) throws Exception {
+        org.mockito.Mockito.doThrow(new IllegalStateException("sensitive database detail"))
+                .when(deletionService).deleteAdmin(51L);
+
+        mvc.perform(delete("/api/admin/reports/51").with(csrf()).with(authentication(admin())))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("Unable to delete report."))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("sensitive database detail"))));
+
+        assertThat(output).contains("Admin report deletion failed for report 51")
+                .contains("IllegalStateException").contains("sensitive database detail");
     }
 
     @Test

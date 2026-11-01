@@ -64,6 +64,7 @@ export function updateMyReport(id, data) { return request(`/api/reports/${encode
 export function getAdminReports(params = {}) { return request(`/api/admin/reports?${queryString(params)}`) }
 export function getAdminSummary(params = {}) { return request(`/api/admin/reports/summary?${queryString(params)}`) }
 export function getAdminReport(id) { return request(`/api/admin/reports/${encodeURIComponent(id)}`) }
+export function deleteAdminReport(id) { return request(`/api/admin/reports/${encodeURIComponent(id)}`, { method: 'DELETE' }, true) }
 export function updateReportStatus(id, data) { return request(`/api/admin/reports/${encodeURIComponent(id)}/status`, { method: 'PATCH', body: JSON.stringify(data) }, true) }
 export function getMyProgressUpdates(id) { return request(`/api/reports/${encodeURIComponent(id)}/progress-updates`) }
 export function getAdminProgressUpdates(id) { return request(`/api/admin/reports/${encodeURIComponent(id)}/progress-updates`) }

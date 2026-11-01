@@ -12,14 +12,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import lk.publiccare.backend.security.PublicCarePrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/admin/reports")
 public class AdminReportController {
+    private static final Logger logger = LoggerFactory.getLogger(AdminReportController.class);
     private final ReportService service;
     private final ReportImageService imageService;
     private final ReportProgressService progressService;
-    public AdminReportController(ReportService service, ReportImageService imageService, ReportProgressService progressService) { this.service = service; this.imageService = imageService; this.progressService = progressService; }
+    private final ReportDeletionService deletionService;
+    public AdminReportController(ReportService service, ReportImageService imageService, ReportProgressService progressService,
+            ReportDeletionService deletionService) { this.service = service; this.imageService = imageService; this.progressService = progressService; this.deletionService = deletionService; }
 
     @GetMapping("/{id}/progress-updates")
     public java.util.List<AdminReportDtos.ProgressUpdateResponse> progress(@PathVariable Long id) { return progressService.adminList(id); }
@@ -49,6 +54,19 @@ public class AdminReportController {
 
     @GetMapping("/{id}")
     public AdminReportDtos.ReportResponse detail(@PathVariable Long id) { return service.adminDetail(id); }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        try {
+            deletionService.deleteAdmin(id);
+        } catch (ReportNotFoundException exception) {
+            throw exception;
+        } catch (RuntimeException exception) {
+            logger.error("Admin report deletion failed for report {}.", id, exception);
+            throw new ReportDeletionFailedException();
+        }
+    }
 
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> image(@PathVariable Long id) {

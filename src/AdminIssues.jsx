@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import SiteHeader from './SiteHeader.jsx'
-import { getAdminReports, reportStatusLabel, setAdminReportPublicApproval } from './reportsApi.js'
+import { deleteAdminReport, getAdminReports, reportStatusLabel, setAdminReportPublicApproval } from './reportsApi.js'
 import SummaryIllustration from './SummaryIllustration.jsx'
 import './AdminIssues.css'
 
@@ -26,6 +26,8 @@ export default function AdminIssues() {
   const [page, setPage] = useState(0)
   const [approvalPendingId, setApprovalPendingId] = useState(null)
   const [approvalError, setApprovalError] = useState('')
+  const [deletePendingId, setDeletePendingId] = useState(null)
+  const [deleteError, setDeleteError] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true); setError('')
@@ -54,6 +56,17 @@ export default function AdminIssues() {
       setData((current) => current && ({ ...current, content: current.content.map((item) => item.id === report.id ? { ...item, publicApproved: result.approved } : item) }))
     } catch (requestError) { setApprovalError(requestError.message) }
     finally { setApprovalPendingId(null) }
+  }
+
+  async function deleteReport(report) {
+    const confirmed = window.confirm(`Delete report ${report.reference}? This will permanently remove the report, its progress history, and uploaded photos.`)
+    if (!confirmed) return
+    setDeletePendingId(report.id); setDeleteError('')
+    try {
+      await deleteAdminReport(report.id)
+      await load()
+    } catch (requestError) { setDeleteError(requestError.message) }
+    finally { setDeletePendingId(null) }
   }
 
   return <main className="site-shell admin-page admin-issues-page">
@@ -85,10 +98,11 @@ export default function AdminIssues() {
         </div>
         {error && <p role="alert" className="update-save-error">{error} <button type="button" onClick={load}>Try again</button></p>}
         {approvalError && <p role="alert" className="update-save-error">{approvalError}</p>}
+        {deleteError && <p role="alert" className="update-save-error">{deleteError}</p>}
         {loading && <p role="status">Loading reports…</p>}
         <div className="issues-table-wrap"><table className="issues-table">
           <thead><tr><th scope="col">Reference</th><th scope="col">Issue title</th><th scope="col">Category</th><th scope="col">Location</th><th scope="col">Date reported</th><th scope="col">Status</th><th scope="col">Public display</th><th scope="col">Actions</th></tr></thead>
-          <tbody>{reports.map((report) => <tr key={report.id}><td><a className="issues-reference" href={`/admin/update-issue?id=${report.id}`}>{report.reference}</a></td><td className="issues-title-cell">{report.title}</td><td>{report.category}</td><td>{report.location}</td><td className="issues-date-cell">{new Date(report.createdAt).toLocaleDateString()}</td><td><span className={`issues-status ${statusClass(report.status)}`}>{reportStatusLabel(report.status)}</span></td><td><div className="issues-public-approval"><span>{report.publicApproved ? 'Approved' : 'Private'}</span><button type="button" onClick={() => changePublicApproval(report)} disabled={approvalPendingId === report.id}>{approvalPendingId === report.id ? 'Saving…' : report.publicApproved ? 'Revoke' : 'Approve'}</button></div></td><td><div className="issues-row-actions"><a href={`/admin/update-issue?id=${report.id}`}>View / update</a></div></td></tr>)}
+          <tbody>{reports.map((report) => <tr key={report.id}><td><a className="issues-reference" href={`/admin/update-issue?id=${report.id}`}>{report.reference}</a></td><td className="issues-title-cell">{report.title}</td><td>{report.category}</td><td>{report.location}</td><td className="issues-date-cell">{new Date(report.createdAt).toLocaleDateString()}</td><td><span className={`issues-status ${statusClass(report.status)}`}>{reportStatusLabel(report.status)}</span></td><td><div className="issues-public-approval"><span>{report.publicApproved ? 'Approved' : 'Private'}</span><button type="button" onClick={() => changePublicApproval(report)} disabled={approvalPendingId === report.id}>{approvalPendingId === report.id ? 'Saving…' : report.publicApproved ? 'Revoke' : 'Approve'}</button></div></td><td><div className="issues-row-actions"><a href={`/admin/update-issue?id=${report.id}`}>View / update</a><button type="button" aria-label={`Delete report ${report.reference}`} disabled={deletePendingId !== null} onClick={() => deleteReport(report)}>{deletePendingId === report.id ? 'Deleting…' : 'Delete'}</button></div></td></tr>)}
           {!loading && !reports.length && <tr><td className="issues-empty" colSpan="8">No reports match your search or filters.</td></tr>}</tbody>
         </table></div>
         {data && <div className="issues-table-footer"><p>Showing {data.totalElements ? page * PAGE_SIZE + 1 : 0}–{Math.min((page + 1) * PAGE_SIZE, data.totalElements)} of {data.totalElements} reports</p><span className="issues-page-size">Rows per page: {PAGE_SIZE}</span><nav className="issues-pagination" aria-label="Report pages"><button type="button" aria-label="Previous page" disabled={page <= 0} onClick={() => setPage((value) => value - 1)}>←</button><span>{page + 1} / {Math.max(data.totalPages, 1)}</span><button type="button" aria-label="Next page" disabled={page + 1 >= data.totalPages} onClick={() => setPage((value) => value + 1)}>→</button></nav></div>}

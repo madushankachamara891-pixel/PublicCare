@@ -4,6 +4,7 @@ import lk.publiccare.backend.auth.AuthController;
 import lk.publiccare.backend.auth.AuthDtos;
 import lk.publiccare.backend.auth.DuplicateEmailException;
 import lk.publiccare.backend.report.ReportNotFoundException;
+import lk.publiccare.backend.report.ReportDeletionFailedException;
 import lk.publiccare.backend.report.ReportDtos;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,12 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ReportNotFoundException.class)
     ResponseEntity<ReportDtos.ErrorResponse> reportNotFound() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ReportDtos.ErrorResponse("Report not found."));
+    }
+
+    @ExceptionHandler(ReportDeletionFailedException.class)
+    ResponseEntity<ReportDtos.ErrorResponse> reportDeletionFailed() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ReportDtos.ErrorResponse("Unable to delete report."));
     }
 
     @ExceptionHandler(ReportImageService.ImageAlreadyExistsException.class)

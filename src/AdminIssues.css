@@ -65,6 +65,7 @@
 .issues-row-actions a:hover { text-decoration:underline; }
 .issues-row-actions button { color:#c62f2c; }
 .issues-row-actions button:hover { text-decoration:underline; }
+.issues-row-actions button:disabled { opacity:.6; cursor:wait; }
 .issues-public-approval { display:grid; justify-items:start; gap:4px; }
 .issues-public-approval>span { color:#718398; font-size:.625rem; }
 .issues-public-approval>button { padding:0; border:0; background:transparent; color:#07866c; font:inherit; font-size:.6875rem; font-weight:650; cursor:pointer; }
