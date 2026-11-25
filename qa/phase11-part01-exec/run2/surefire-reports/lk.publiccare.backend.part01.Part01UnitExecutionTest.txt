@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: lk.publiccare.backend.part01.Part01UnitExecutionTest
+-------------------------------------------------------------------------------
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.334 s -- in lk.publiccare.backend.part01.Part01UnitExecutionTest

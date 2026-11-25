@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: lk.publiccare.backend.part01.Part01Api23ServerErrorTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 22.64 s -- in lk.publiccare.backend.part01.Part01Api23ServerErrorTest

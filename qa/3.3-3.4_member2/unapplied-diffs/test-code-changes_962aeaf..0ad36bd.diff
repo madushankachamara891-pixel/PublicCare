@@ -1,0 +1,90 @@
+diff --git a/project/backend/src/test/java/lk/publiccare/backend/auth/AuthControllerTest.java b/project/backend/src/test/java/lk/publiccare/backend/auth/AuthControllerTest.java
+index fb94b94..efcbdb6 100644
+--- a/project/backend/src/test/java/lk/publiccare/backend/auth/AuthControllerTest.java
++++ b/project/backend/src/test/java/lk/publiccare/backend/auth/AuthControllerTest.java
+@@ -134,4 +134,37 @@ class AuthControllerTest {
+         mockMvc.perform(get("/api/admin/issues").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@example.com").roles("ADMIN")))
+                 .andExpect(status().isNotFound());
+     }
++    @org.junit.jupiter.params.ParameterizedTest
++    @org.junit.jupiter.params.provider.CsvSource({
++            "Test Citizen,citizen@example.com,16,201",
++            "Test Citizen,citizen@example.com,8,400",
++            "Test Citizen,citizen@example.com,73,400",
++            "Test Citizen,invalid-email,16,400",
++            "'',citizen@example.com,16,400"
++    })
++    void registrationEquivalencePartitionTest(
++            String name, String email,
++            int passwordLength, int expectedStatus)
++            throws Exception {
++
++        String password = "A".repeat(passwordLength);
++
++        if (expectedStatus == 201) {
++            when(authService.register(any()))
++                    .thenReturn(citizen());
++        }
++
++        mockMvc.perform(post("/api/auth/register")
++                        .with(org.springframework.security.test.web.servlet
++                                .request.SecurityMockMvcRequestPostProcessors.csrf())
++                        .contentType(MediaType.APPLICATION_JSON)
++                        .content("""
++                    {
++                        "fullName":"%s",
++                        "email":"%s",
++                        "password":"%s"
++                    }
++                    """.formatted(name, email, password)))
++                .andExpect(status().is(expectedStatus));
++    }
+ }
+diff --git a/project/backend/src/test/java/lk/publiccare/backend/report/ReportControllerTest.java b/project/backend/src/test/java/lk/publiccare/backend/report/ReportControllerTest.java
+index 0c88f8a..7de1935 100644
+--- a/project/backend/src/test/java/lk/publiccare/backend/report/ReportControllerTest.java
++++ b/project/backend/src/test/java/lk/publiccare/backend/report/ReportControllerTest.java
+@@ -367,4 +367,43 @@ class ReportControllerTest {
+                 .andExpect(status().isCreated()).andExpect(jsonPath("$.status").value("RESOLVED")).andExpect(jsonPath("$.hasImage").value(true));
+         verify(progressService).create(eq(51L), eq(ReportStatus.RESOLVED), eq("Fixed"), any());
+     }
++    @org.junit.jupiter.params.ParameterizedTest
++    @org.junit.jupiter.params.provider.CsvSource({
++            "0,400",
++            "1,201",
++            "2,201",
++            "80,201",
++            "159,201",
++            "160,201",
++            "161,400"
++    })
++    void reportTitleBoundaryTest(int length, int expectedStatus)
++            throws Exception {
++
++        String title = "A".repeat(length);
++
++        if (expectedStatus == 201) {
++            when(service.create(eq(42L), any()))
++                    .thenReturn(new ReportDtos.ReportResponse(
++                            3L, "PC-00000003", title,
++                            "Description", "Road damage", "Galle",
++                            ReportStatus.PENDING, null, 42L,
++                            "Citizen", null, null
++                    ));
++        }
++
++        mvc.perform(post("/api/reports")
++                        .with(csrf())
++                        .with(authentication(citizen()))
++                        .contentType(MediaType.APPLICATION_JSON)
++                        .content("""
++                    {
++                        "title":"%s",
++                        "description":"Description",
++                        "category":"Road damage",
++                        "location":"Galle"
++                    }
++                    """.formatted(title)))
++                .andExpect(status().is(expectedStatus));
++    }
+ }

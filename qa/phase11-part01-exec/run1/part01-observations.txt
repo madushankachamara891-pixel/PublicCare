@@ -1,0 +1,226 @@
+2026-11-25T11:28:58.673052Z | API-23 | upload directory path is a regular file (isRegularFile=true); upload -> 500 {"timestamp":"2026-11-25T11:28:58.649+00:00","status":500,"error":"Internal Server Error","path":"/api/reports/1/image"}; body leaks stack trace / exception class / message=false; GET /api/health afterwards -> 200 {"status":"UP"}
+2026-11-25T11:29:02.145317Z | API-01 | GET /api/auth/csrf -> 200; token length=96; Set-Cookie=[XSRF-TOKEN=aef7173c-eb94-47f9-817f-4b74177468cb; Path=/; SameSite=Lax]
+2026-11-25T11:29:02.801219Z | API-02 | register with "role":"ADMIN" -> 201; fields=[id, fullName, email, role, createdAt]; role=CITIZEN
+2026-11-25T11:29:03.338363400Z | API-02 | login -> 200; GET /api/auth/me -> 200 role=CITIZEN
+2026-11-25T11:29:03.844971700Z | API-03 | name 120 -> 201 {"id":3,"fullName":"NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN","email":"b1-77c263b1@qa.example.test","role":"CITIZEN","createdAt":"2026-11-25…(242 chars)
+2026-11-25T11:29:03.913724300Z | API-03 | name 121 -> 400 {"error":"fullName size must be between 0 and 120"}
+2026-11-25T11:29:03.932205400Z | API-03 | password 11 -> 400 {"error":"password size must be between 12 and 72"}
+2026-11-25T11:29:04.414753700Z | API-03 | password 12 -> 201 {"id":4,"fullName":"QA","email":"b4-b443a53e@qa.example.test","role":"CITIZEN","createdAt":"2026-11-25T11:29:04.407600400Z"}
+2026-11-25T11:29:04.906835400Z | API-03 | password 72 -> 201 {"id":5,"fullName":"QA","email":"b5-f6ebc19e@qa.example.test","role":"CITIZEN","createdAt":"2026-11-25T11:29:04.902827600Z"}
+2026-11-25T11:29:04.922101500Z | API-03 | password 73 -> 400 {"error":"password size must be between 12 and 72"}
+2026-11-25T11:29:04.939522600Z | API-03 | password 37 x e-acute (74 bytes) -> 400 {"error":"Password must be at most 72 UTF-8 bytes."}
+2026-11-25T11:29:05.419691900Z | API-03 | email 254 -> 201 {"id":6,"fullName":"QA","email":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc…(351 chars)
+2026-11-25T11:29:05.433202300Z | API-03 | email 255 -> 400 {"error":"email size must be between 0 and 254"}
+2026-11-25T11:29:05.445276600Z | API-03 | blank name -> 400 {"error":"fullName must not be blank"}
+2026-11-25T11:29:05.458337400Z | API-03 | whitespace-only name -> 400 {"error":"fullName must not be blank"}
+2026-11-25T11:29:05.474024300Z | API-03 | blank email -> 400 {"error":"email must not be blank"}
+2026-11-25T11:29:05.490062200Z | API-03 | whitespace-only email -> 400 {"error":"email must not be blank"}
+2026-11-25T11:29:05.505994800Z | API-03 | blank password -> 400 {"error":"password size must be between 12 and 72"}
+2026-11-25T11:29:05.521545300Z | API-03 | whitespace-only password (12 spaces) -> 400 {"error":"password must not be blank"}
+2026-11-25T11:29:07.036566300Z | API-05 | without X-XSRF-TOKEN: POST /api/auth/register -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.037577700Z | API-05 | without X-XSRF-TOKEN: POST /api/auth/login -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.037577700Z | API-05 | without X-XSRF-TOKEN: POST /api/auth/logout (citizen session) -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.039038200Z | API-05 | without X-XSRF-TOKEN: POST /api/reports -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.039038200Z | API-05 | without X-XSRF-TOKEN: PUT /api/reports/{id} -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.040218500Z | API-05 | without X-XSRF-TOKEN: POST /api/reports/{id}/image -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.040218500Z | API-05 | without X-XSRF-TOKEN: POST /api/admin/reports/{id}/progress-updates -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.041390100Z | API-05 | without X-XSRF-TOKEN: PATCH /api/admin/reports/{id}/status -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.041390100Z | API-05 | without X-XSRF-TOKEN: DELETE /api/admin/reports/{id} -> 403 {"error":"Access denied."}
+2026-11-25T11:29:07.118279800Z | API-05 | after rejected requests: reports count 2 -> 2; own report title='API-05 own report' status=PENDING; disposable still exists=true; account created for api05reg-8850e23a@qa.example.test=false
+2026-11-25T11:29:08.152817500Z | API-05 | control with X-XSRF-TOKEN: POST /api/auth/register -> 201
+2026-11-25T11:29:08.153829Z | API-05 | control with X-XSRF-TOKEN: POST /api/auth/login -> 200
+2026-11-25T11:29:08.154826600Z | API-05 | control with X-XSRF-TOKEN: POST /api/reports -> 201
+2026-11-25T11:29:08.154826600Z | API-05 | control with X-XSRF-TOKEN: PUT /api/reports/{id} -> 200
+2026-11-25T11:29:08.154826600Z | API-05 | control with X-XSRF-TOKEN: POST /api/reports/{id}/image -> 204
+2026-11-25T11:29:08.156355300Z | API-05 | control with X-XSRF-TOKEN: POST /api/admin/reports/{id}/progress-updates -> 201
+2026-11-25T11:29:08.156355300Z | API-05 | control with X-XSRF-TOKEN: PATCH /api/admin/reports/{id}/status -> 200
+2026-11-25T11:29:08.157386900Z | API-05 | control with X-XSRF-TOKEN: DELETE /api/admin/reports/{id} -> 204
+2026-11-25T11:29:08.157386900Z | API-05 | control with X-XSRF-TOKEN: POST /api/auth/logout (citizen session) -> 204
+2026-11-25T11:29:08.840374300Z | API-06 | step 1: JSESSIONID held before the first login = null (GET /api/auth/csrf does not create a session)
+2026-11-25T11:29:09.170696700Z | API-06 | first login -> 200; Set-Cookie JSESSIONID attributes: JSESSIONID=<id>; Path=/; HttpOnly; SameSite=Lax
+2026-11-25T11:29:09.522387100Z | API-06 | second login while holding session 1 -> 200; session ID changed=true; GET /api/auth/me -> 200; Secure attribute present=false
+2026-11-25T11:29:10.914131Z | API-07 | wrong password -> 401 {"error":"Invalid email or password."}; unregistered email -> 401 {"error":"Invalid email or password."}; bodies identical=true
+2026-11-25T11:29:10.916128900Z | API-07 | 73 ASCII characters (73 bytes) -> 400 {"error":"password size must be between 0 and 72"}; 37 characters / 73 UTF-8 bytes -> 400 {"error":"Password must be at most 72 UTF-8 bytes."}
+2026-11-25T11:29:11.673774Z | API-08 | step 1 no session -> 401 {"error":"Authentication required."}; step 2 -> 200 email=api08-9e7fc6d5@qa.example.test
+2026-11-25T11:29:11.675740600Z | API-08 | step 3-4 logout -> 204; Set-Cookie=[JSESSIONID=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/; SameSite=Lax, XSRF-TOKEN=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/, XSRF-TOKEN=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/; SameSite=Lax]
+2026-11-25T11:29:11.675740600Z | API-08 | step 5 same client -> 401 {"error":"Authentication required."}; old JSESSIONID replayed by a new client -> 401
+2026-11-25T11:29:12.523704900Z | API-09 | GET /api/admin/reports: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.534752800Z | API-09 | GET /api/admin/reports/summary: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.543806900Z | API-09 | GET /api/admin/reports/{id}: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.555825100Z | API-09 | GET /api/admin/reports/{id}/image: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.566811800Z | API-09 | GET /api/admin/reports/{id}/progress-updates: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.575808900Z | API-09 | GET /api/admin/reports/{id}/progress-updates/{updateId}/image: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.593811900Z | API-09 | POST /api/admin/reports/{id}/progress-updates: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.606807600Z | API-09 | PATCH /api/admin/reports/{id}/status: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.618813900Z | API-09 | PATCH /api/admin/reports/{id}/public-approval: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.638503900Z | API-09 | PATCH /api/admin/reports/{id}/progress-updates/{updateId}/public-approval: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.656376800Z | API-09 | PATCH /api/admin/reports/{id}/progress-updates/{updateId}/note-public-approval: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.668675800Z | API-09 | DELETE /api/admin/reports/{id}: anonymous -> 401, citizen -> 403
+2026-11-25T11:29:12.689232500Z | API-09 | after anonymous/citizen calls: status=IN_PROGRESS publicApproved=false history rows 1 -> 1 disposable exists=true
+2026-11-25T11:29:12.748168700Z | API-09 | GET /api/admin/reports: admin -> 200
+2026-11-25T11:29:12.766301500Z | API-09 | GET /api/admin/reports/summary: admin -> 200
+2026-11-25T11:29:12.774305500Z | API-09 | GET /api/admin/reports/{id}: admin -> 200
+2026-11-25T11:29:12.791311600Z | API-09 | GET /api/admin/reports/{id}/image: admin -> 200
+2026-11-25T11:29:12.806851600Z | API-09 | GET /api/admin/reports/{id}/progress-updates: admin -> 200
+2026-11-25T11:29:12.823394600Z | API-09 | GET /api/admin/reports/{id}/progress-updates/{updateId}/image: admin -> 200
+2026-11-25T11:29:12.840404300Z | API-09 | POST /api/admin/reports/{id}/progress-updates: admin -> 201
+2026-11-25T11:29:12.852951700Z | API-09 | PATCH /api/admin/reports/{id}/status: admin -> 200
+2026-11-25T11:29:12.868985Z | API-09 | PATCH /api/admin/reports/{id}/public-approval: admin -> 200
+2026-11-25T11:29:12.888307500Z | API-09 | PATCH /api/admin/reports/{id}/progress-updates/{updateId}/public-approval: admin -> 200
+2026-11-25T11:29:12.906306900Z | API-09 | PATCH /api/admin/reports/{id}/progress-updates/{updateId}/note-public-approval: admin -> 200
+2026-11-25T11:29:12.923403900Z | API-09 | DELETE /api/admin/reports/{id}: admin -> 204
+2026-11-25T11:29:14.241831900Z | API-10 | create with "ownerId":14 (Citizen B) as Citizen A (id 13) -> 201; status=PENDING reference=PC-00000006 ownerName=QA api10a; admin view ownerId=13
+2026-11-25T11:29:14.898327700Z | API-11 | title 160 -> 201
+2026-11-25T11:29:14.904325400Z | API-11 | title 161 -> 400 {"error":"title size must be between 0 and 160"}
+2026-11-25T11:29:14.917478200Z | API-11 | description 5000 -> 201
+2026-11-25T11:29:14.924430700Z | API-11 | description 5001 -> 400 {"error":"description size must be between 0 and 5000"}
+2026-11-25T11:29:14.935758800Z | API-11 | category 80 -> 201
+2026-11-25T11:29:14.973920400Z | API-11 | category 81 -> 400 {"error":"category size must be between 0 and 80"}
+2026-11-25T11:29:14.999488900Z | API-11 | location 240 -> 201
+2026-11-25T11:29:15.010487500Z | API-11 | location 241 -> 400 {"error":"location size must be between 0 and 240"}
+2026-11-25T11:29:15.033024Z | API-11 | title whitespace-only -> 400 {"error":"title must not be blank"}
+2026-11-25T11:29:15.050044Z | API-11 | description whitespace-only -> 400 {"error":"description must not be blank"}
+2026-11-25T11:29:15.071604900Z | API-11 | category whitespace-only -> 400 {"error":"category must not be blank"}
+2026-11-25T11:29:15.084595300Z | API-11 | location whitespace-only -> 400 {"error":"location must not be blank"}
+2026-11-25T11:29:15.105591800Z | API-11 | category not in the UI list -> 201
+2026-11-25T11:29:15.124595100Z | API-11 | values with surrounding spaces -> 201; stored title='Padded title' description='Padded description' category='Roads' location='Padded location'
+2026-11-25T11:29:18.070237Z | API-12 | step 1 JPG -> 204
+2026-11-25T11:29:18.071246800Z | API-12 | step 1 PNG -> 204
+2026-11-25T11:29:18.077529800Z | API-12 | step 1 WebP (synthetic VP8L) -> 204
+2026-11-25T11:29:18.084493200Z | API-12 | step 2 second image on JPG report -> 409
+2026-11-25T11:29:18.085496800Z | API-12 | step 3 GIF -> 400
+2026-11-25T11:29:18.086495400Z | API-12 | step 3 text file renamed .png -> 400
+2026-11-25T11:29:18.087495300Z | API-12 | step 3 0-byte file -> 400
+2026-11-25T11:29:18.088494100Z | API-12 | step 4 PNG of exactly 5,242,880 bytes -> 204
+2026-11-25T11:29:18.089494Z | API-12 | step 5 PNG of 5,242,881 bytes -> 413
+2026-11-25T11:29:18.089494Z | API-12 | step 6 PNG 4000 x 2501 (10,004,000 px) -> 400
+2026-11-25T11:29:18.090497100Z | API-12 | step 7 Citizen B uploads to Citizen A's report -> 404
+2026-11-25T11:29:18.091493800Z | API-12 | step 8 anonymous uploads to Citizen A's report -> 401
+2026-11-25T11:29:19.936631300Z | API-13 | step 1 owner -> 200; Content-Type=image/png; Cache-Control=no-store; X-Content-Type-Options=nosniff; bytes identical to upload=true
+2026-11-25T11:29:19.937630500Z | API-13 | step 2 Citizen B -> 404; Content-Type=application/json; Cache-Control=no-cache, no-store, max-age=0, must-revalidate; X-Content-Type-Options=nosniff; body={"error":"Report not found."}
+2026-11-25T11:29:19.938633200Z | API-13 | step 4 owner, no image -> 404; Content-Type=application/json; Cache-Control=no-cache, no-store, max-age=0, must-revalidate; X-Content-Type-Options=nosniff; body={"error":"Report not found."}
+2026-11-25T11:29:19.938633200Z | API-13 | step 3 admin -> 200; Content-Type=image/png; Cache-Control=no-store; X-Content-Type-Options=nosniff; bytes identical to upload=true
+2026-11-25T11:29:21.617726900Z | API-14 | /api/reports/mine?page=-1 -> 400 {"error":"Page must be non-negative and size must be between 1 and 100."}
+2026-11-25T11:29:21.618720200Z | API-14 | /api/reports/mine?size=0 -> 400 {"error":"Page must be non-negative and size must be between 1 and 100."}
+2026-11-25T11:29:21.620711900Z | API-14 | /api/reports/mine?size=1 -> 200 totalElements=3 items=1 summary.total=3
+2026-11-25T11:29:21.621709Z | API-14 | /api/reports/mine?size=100 -> 200 totalElements=3 items=3 summary.total=3
+2026-11-25T11:29:21.622759700Z | API-14 | /api/reports/mine?size=101 -> 400 {"error":"Page must be non-negative and size must be between 1 and 100."}
+2026-11-25T11:29:21.622759700Z | API-14 | /api/reports/mine?sort=foo -> 400 {"error":"Unsupported sort field."}
+2026-11-25T11:29:21.623744500Z | API-14 | /api/reports/mine?status=in%20progress -> 200 totalElements=1 items=1 summary.total=1
+2026-11-25T11:29:21.624717100Z | API-14 | /api/reports/mine?status=ALL -> 200 totalElements=3 items=3 summary.total=3
+2026-11-25T11:29:21.625722600Z | API-14 | /api/reports/mine?status=DONE -> 400 {"error":"Unsupported report status."}
+2026-11-25T11:29:21.625722600Z | API-14 | /api/reports/mine?q=PC-00000021 -> 200 totalElements=1 items=1 summary.total=1
+2026-11-25T11:29:21.787935Z | API-14 | /api/admin/reports?page=-1 (+ category filter for isolation) -> 400 {"error":"Page must be non-negative and size must be between 1 and 100."}
+2026-11-25T11:29:21.788951300Z | API-14 | /api/admin/reports?size=0 (+ category filter for isolation) -> 400 {"error":"Page must be non-negative and size must be between 1 and 100."}
+2026-11-25T11:29:21.789931Z | API-14 | /api/admin/reports?size=1 (+ category filter for isolation) -> 200 totalElements=4 items=1 summary.total=4
+2026-11-25T11:29:21.790931300Z | API-14 | /api/admin/reports?size=100 (+ category filter for isolation) -> 200 totalElements=4 items=4 summary.total=4
+2026-11-25T11:29:21.791930200Z | API-14 | /api/admin/reports?size=101 (+ category filter for isolation) -> 400 {"error":"Page must be non-negative and size must be between 1 and 100."}
+2026-11-25T11:29:21.792929500Z | API-14 | /api/admin/reports?sort=foo (+ category filter for isolation) -> 400 {"error":"Unsupported sort field."}
+2026-11-25T11:29:21.794956Z | API-14 | /api/admin/reports?status=in%20progress (+ category filter for isolation) -> 200 totalElements=2 items=2 summary.total=2
+2026-11-25T11:29:21.797929700Z | API-14 | /api/admin/reports?status=ALL (+ category filter for isolation) -> 200 totalElements=4 items=4 summary.total=4
+2026-11-25T11:29:21.798931900Z | API-14 | /api/admin/reports?status=DONE (+ category filter for isolation) -> 400 {"error":"Unsupported report status."}
+2026-11-25T11:29:21.799930100Z | API-14 | /api/admin/reports?q=PC-00000021 (+ category filter for isolation) -> 200 totalElements=1 items=1 summary.total=1
+2026-11-25T11:29:21.853879200Z | API-14 | step 7: /mine ids=[23, 22, 21] (B's reports 24,25 present=false); step 8: admin list owners for the category=[21, 21, 20, 20]
+2026-11-25T11:29:23.559096700Z | API-15 | GET other's report -> 404 {"error":"Report not found."}; GET missing -> 404 {"error":"Report not found."}
+2026-11-25T11:29:23.563095900Z | API-15 | PUT other's report -> 404 {"error":"Report not found."}; PUT missing -> 404 {"error":"Report not found."}; B's report title after='B original'
+2026-11-25T11:29:23.567101400Z | API-15 | PUT own approved report (status PENDING) -> 200 title='Changed by A'; admin view publicApproved=false status=PENDING
+2026-11-25T11:29:24.854420Z | API-16 | step 1 status null -> 400 {"error":"A valid status is required."}; step 2 status DONE -> 400; after steps 1-2 status=PENDING publicApproved=true
+2026-11-25T11:29:24.857420800Z | API-16 | step 3 same status PENDING + 1000-char note -> 200; publicApproved=true (observed; pass criterion blocked by RTM Q1 / BR-13)
+2026-11-25T11:29:24.858421200Z | API-16 | step 4 1001-char note -> 400 {"error":"adminUpdateNote size must be between 0 and 1000"}; status after=PENDING; step 5 owner sees latest note length=1000
+2026-11-25T11:29:24.863426700Z | API-16 | step 6 new status IN_PROGRESS -> 200 publicApproved=false; step 7 note null -> 200 owner adminUpdateNote isNull=true
+2026-11-25T11:29:26.069130400Z | API-17 | step 1 no status -> 400 {"type":"about:blank","title":"Bad Request","status":400,"detail":"Required parameter 'status' is not present.","instance":"/api/admin/reports/29/progress-updates"}; step 5: status=PENDING history rows=0
+2026-11-25T11:29:26.098903500Z | API-17 | step 2 1001-char note -> 400 {"error":"Update note must be 1000 characters or fewer."}; step 5: status=PENDING history rows=0
+2026-11-25T11:29:26.123146700Z | API-17 | step 3 WebP photo -> 400 {"error":"Only valid JPG or PNG images are supported."}; step 5: status=PENDING history rows=0
+2026-11-25T11:29:26.146312700Z | API-17 | step 4 corrupt JPG -> 400 {"error":"Uploaded file is not a valid JPG or PNG image."}; step 5: status=PENDING history rows=0
+2026-11-25T11:29:26.324618300Z | API-17 | step 6 -> 201; status=IN_PROGRESS note length=1000
+2026-11-25T11:29:26.329881700Z | API-17 | step 7 -> 201; status=RESOLVED note='Repair completed'
+2026-11-25T11:29:26.357600500Z | API-17 | step 8 admin history=[{"id":4,"status":"IN_PROGRESS","note":"mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm","createdAt":"2026-11-25T11:29:26.200157Z","hasImage":true,"publicApproved":false,"notePublicApproved":false},{"id":5,"status":"RESOLVED","note":"Repair completed","createdAt":"2026-11-25T11:29:26.266906Z","hasImage":false,"publicApproved":false,"notePublicApproved":false}]
+2026-11-25T11:29:26.358602800Z | API-17 | step 9 owner history statuses=[IN_PROGRESS, RESOLVED] hasImage=[true, false]
+2026-11-25T11:29:27.532613300Z | API-18 | step 1 approve -> 200 {"approved":true} flag=true approver(db)=1 (admin id 1) at=2026-11-25T11:29:27.467717Z; revoke -> 200 {"approved":false} flag=false
+2026-11-25T11:29:27.619932400Z | API-18 | U1 public-approval: approve -> 200 {"approved":true} publicApproved=true; revoke -> 200 {"approved":false} publicApproved=false
+2026-11-25T11:29:27.701877Z | API-18 | U1 note-public-approval: approve -> 200 {"approved":true} notePublicApproved=true; revoke -> 200 {"approved":false} notePublicApproved=false
+2026-11-25T11:29:27.767097500Z | API-18 | step 4 approve blank note U2 -> 400 {"error":"A non-empty note is required for public approval."}; step 5 U3 under R1 -> 404 {"error":"Report not found."}
+2026-11-25T11:29:27.769095400Z | API-18 | step 6 approve then {} -> 200 {"approved":false}; publicApproved after {}=false (observed; not judged, RTM Q1 / BR-22)
+2026-11-25T11:29:28.296403900Z | API-19 | GET /api/public/reports?size=0 -> 400 {"error":"Page must be non-negative and size must be between 1 and 24."}
+2026-11-25T11:29:28.324567300Z | API-19 | GET /api/public/reports?size=1 -> 200 items=1
+2026-11-25T11:29:28.376818900Z | API-19 | GET /api/public/reports?size=24 -> 200 items=24
+2026-11-25T11:29:28.383787800Z | API-19 | GET /api/public/reports?size=25 -> 400 {"error":"Page must be non-negative and size must be between 1 and 24."}
+2026-11-25T11:29:28.390331800Z | API-19 | GET /api/public/reports?page=-1 -> 400 {"error":"Page must be non-negative and size must be between 1 and 24."}
+2026-11-25T11:29:28.439949Z | API-19 | step 3 default -> size=9 ids=[59, 57, 56, 55, 54, 53, 52, 51, 50] all approved=true reportedAt=[2026-11-25T11:29:28.264852Z, 2026-11-25T11:29:28.255926Z, 2026-11-25T11:29:28.252854Z, 2026-11-25T11:29:28.249853Z, 2026-11-25T11:29:28.245862Z, 2026-11-25T11:29:28.239857Z, 2026-11-25T11:29:28.235854Z, 2026-11-25T11:29:28.223849Z, 2026-11-25T11:29:28.219851Z]
+2026-11-25T11:29:28.470780800Z | API-19 | step 4 unapproved detail -> 404 {"error":"Report not found."}; step 5 fields=[id, title, category, status, location, description, reportedAt, progressUpdates] update fields=[status, createdAt, note]
+2026-11-25T11:29:28.471887100Z | API-19 | step 6 updates returned=10 notes newest first=[null, note 10, null, note 8, null, note 6, null, note 4, null, note 2]; step 7 image -> 401
+2026-11-25T11:29:29.389346600Z | API-20 | 1 citizen -> 403 {"error":"Access denied."}; 2 admin no token -> 403 {"error":"Access denied."}; 3 /abc -> 400; 4 delete -> 204; 5 GET deleted -> 404 {"error":"Report not found."}; 6 repeat -> 404 {"error":"Report not found."}; 7 second report -> 200; progress rows left=0
+2026-11-25T11:29:29.465237500Z | API-21 | GET /api/health -> 200 {"status":"UP"}; GET /actuator/health -> 200 {"status":"UP"}; body has a components/db entry=false
+2026-11-25T11:29:29.492015800Z | API-22 | preflight Origin http://localhost:5173 -> 200 {access-control-allow-credentials=[true], access-control-allow-headers=[Content-Type, X-XSRF-TOKEN], access-control-allow-methods=[GET,POST,PUT,PATCH,DELETE,OPTIONS], access-control-allow-origin=[http://localhost:5173], access-control-max-age=[3600]} body=
+2026-11-25T11:29:29.492015800Z | API-22 | preflight Origin http://evil.test -> 403 {} body=Invalid CORS request
+2026-11-25T11:29:30.261792700Z | API-24 | round 1: [204 , 500 {"timestamp":"2026-11-25T11:29:30.254+00:00","status":500,"error":"Internal Server Error","path":"/api/reports/62/image"}]; images stored for the report=1
+2026-11-25T11:29:30.318105500Z | API-24 | round 2: [500 {"timestamp":"2026-11-25T11:29:30.316+00:00","status":500,"error":"Internal Server Error","path":"/api/reports/63/image"}, 204 ]; images stored for the report=1
+2026-11-25T11:29:30.373926700Z | API-24 | round 3: [500 {"timestamp":"2026-11-25T11:29:30.371+00:00","status":500,"error":"Internal Server Error","path":"/api/reports/64/image"}, 204 ]; images stored for the report=1
+2026-11-25T11:29:30.444419900Z | API-24 | round 4: [500 {"timestamp":"2026-11-25T11:29:30.438+00:00","status":500,"error":"Internal Server Error","path":"/api/reports/65/image"}, 204 ]; images stored for the report=1
+2026-11-25T11:29:30.502770700Z | API-24 | round 5: [204 , 500 {"timestamp":"2026-11-25T11:29:30.500+00:00","status":500,"error":"Internal Server Error","path":"/api/reports/66/image"}]; images stored for the report=1
+2026-11-25T11:29:31.818874700Z | API-25 | no filters: summary={"total":67,"pending":55,"inProgress":7,"resolved":5,"categories":{"C":5,"Category-Not-In-UI-List":1,"Changed":1,"QA-1ec28337":1,"QA-2af08a30":1,"QA-2b3641d6":1,"QA-3831ff0b":1,"QA-4b6c77a8":1,"QA-4d7ac889":1,"QA-51360505":1,"QA-716650dc":4,"QA-74143e4d":1,"QA-82000881":1,"QA-94912558":1,"QA-9d11f1d0":1,"QA-ac440cb8":1,"QA-bf153b4f":3,"QA-c9e99bbb":1,"QA-cc9c14ca":1,"QA-d2f62665":1,"QA-e68e137a":6,"QA-other-QA-716650dc":1,"Roads":30,"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc":1}} list totalElements=67 reports in database=67
+2026-11-25T11:29:31.856014200Z | API-25 | category=QA-bf153b4f -> summary {"total":3,"pending":1,"inProgress":1,"resolved":1,"categories":{"QA-bf153b4f":3}}; list totalElements=3; expected [total,pending,inProgress,resolved]=[3, 1, 1, 1]
+2026-11-25T11:29:31.886637200Z | API-25 | category=QA-d2f62665 -> summary {"total":1,"pending":0,"inProgress":0,"resolved":1,"categories":{"QA-d2f62665":1}}; list totalElements=1; expected [total,pending,inProgress,resolved]=[1, 0, 0, 1]
+2026-11-25T11:29:31.918183900Z | API-25 | status=RESOLVED&category=QA-bf153b4f -> summary {"total":1,"pending":0,"inProgress":0,"resolved":1,"categories":{"QA-bf153b4f":1}}; list totalElements=1; expected [total,pending,inProgress,resolved]=[1, 0, 0, 1]
+2026-11-25T11:29:31.965737200Z | API-25 | q=summary%20gamma -> summary {"total":1,"pending":0,"inProgress":0,"resolved":1,"categories":{"QA-bf153b4f":1}}; list totalElements=1; expected [total,pending,inProgress,resolved]=[1, 0, 0, 1]
+2026-11-25T11:29:31.983741300Z | API-25 | q=summary categories={"QA-bf153b4f":3,"QA-d2f62665":1} (owners A=30, B=31)
+2026-11-25T11:29:32.899827700Z | UT-04 | page -1 -> rejected: Page must be non-negative and size must be between 1 and 100.
+2026-11-25T11:29:32.900824500Z | UT-04 | page 0 -> accepted (3 items)
+2026-11-25T11:29:32.900824500Z | UT-04 | size 0 -> rejected: Page must be non-negative and size must be between 1 and 100.
+2026-11-25T11:29:32.901825100Z | UT-04 | size 1 -> accepted (1 items)
+2026-11-25T11:29:32.901825100Z | UT-04 | size 100 -> accepted (3 items)
+2026-11-25T11:29:32.901825100Z | UT-04 | size 101 -> rejected: Page must be non-negative and size must be between 1 and 100.
+2026-11-25T11:29:32.901825100Z | UT-04 | sort createdAt -> accepted (3 items)
+2026-11-25T11:29:32.903332900Z | UT-04 | sort updatedAt -> accepted (3 items)
+2026-11-25T11:29:32.903332900Z | UT-04 | sort title -> accepted (3 items)
+2026-11-25T11:29:32.903332900Z | UT-04 | sort status -> accepted (3 items)
+2026-11-25T11:29:32.903332900Z | UT-04 | sort category -> accepted (3 items)
+2026-11-25T11:29:32.904927900Z | UT-04 | sort foo -> rejected: Unsupported sort field.
+2026-11-25T11:29:32.905954900Z | UT-04 | direction asc -> accepted, title order=[Alpha, Bravo, Charlie]
+2026-11-25T11:29:32.905954900Z | UT-04 | direction desc -> accepted, title order=[Charlie, Bravo, Alpha]
+2026-11-25T11:29:32.906936500Z | UT-04 | direction ASC -> accepted, title order=[Alpha, Bravo, Charlie]
+2026-11-25T11:29:32.906936500Z | UT-04 | direction Desc -> accepted, title order=[Charlie, Bravo, Alpha]
+2026-11-25T11:29:35.153148100Z | UT-07 | owner edit -> title='New title', approval after edit=false; non-owner edit -> ReportNotFoundException; title after non-owner attempt='New title', approval=true
+2026-11-25T11:29:35.732305500Z | UT-11 | step 1 note of approved update with unapproved note=null; step 2 size 24 -> accepted (24), size 25 -> rejected: Page must be non-negative and size must be between 1 and 24.; step 3 unapproved detail -> ReportNotFoundException
+2026-11-25T11:29:37.964154100Z | UT-01 | stored email='a@x.com' name='Padded Name' hash prefix=$2a$12$ matches raw=true role=CITIZEN; response fields=[id, fullName, email, role, createdAt]
+2026-11-25T11:29:38.367769900Z | UT-02 | pre-check false, saveAndFlush throws DataIntegrityViolationException -> DuplicateEmailException
+2026-11-25T11:29:38.376774200Z | UT-03 | 72 bytes / 62 chars -> accepted; 73 bytes / 63 chars -> IllegalArgumentException: Password must be at most 72 UTF-8 bytes.
+2026-11-25T11:29:38.578910100Z | UT-06 | step 1 same status -> approval kept=true (observed; pass criterion blocked by RTM Q1 / BR-13); step 2 changed status -> approval=false; step 3 null status -> IllegalArgumentException: A valid status is required.; step 4 null note -> note=null status=RESOLVED
+2026-11-25T11:29:39.406498900Z | UT-08 | valid JPG -> accepted as image/jpeg
+2026-11-25T11:29:39.410503700Z | UT-08 | valid PNG -> accepted as image/png
+2026-11-25T11:29:39.412498800Z | UT-08 | WebP VP8L -> accepted as image/webp
+2026-11-25T11:29:39.413508100Z | UT-08 | WebP VP8 -> accepted as image/webp
+2026-11-25T11:29:39.414504100Z | UT-08 | WebP VP8X + VP8L -> accepted as image/webp
+2026-11-25T11:29:39.415503400Z | UT-08 | truncated WebP -> rejected: Only valid JPG, PNG, or WebP images are supported.
+2026-11-25T11:29:39.415503400Z | UT-08 | WebP with wrong RIFF length -> rejected: Only valid JPG, PNG, or WebP images are supported.
+2026-11-25T11:29:39.416499300Z | UT-08 | 0 bytes -> rejected: Choose an image to upload.
+2026-11-25T11:29:39.417503400Z | UT-08 | PNG 4000 x 2500 (exactly 10,000,000 px) -> accepted as image/png
+2026-11-25T11:29:39.417503400Z | UT-08 | PNG 4000 x 2501 (10,004,000 px) -> rejected: Image dimensions must not exceed 10 megapixels.
+2026-11-25T11:29:39.706135200Z | UT-09 | step 1 note 1000 -> accepted
+2026-11-25T11:29:39.710132500Z | UT-09 | step 2 note 1001 -> IllegalArgumentException: Update note must be 1000 characters or fewer.
+2026-11-25T11:29:39.712336900Z | UT-09 | step 3 WebP photo -> IllegalArgumentException: Only valid JPG or PNG images are supported.
+2026-11-25T11:29:39.713346500Z | UT-09 | step 4 valid JPG, save fails -> IllegalStateException: simulated save failure
+2026-11-25T11:29:39.714347500Z | UT-09 | step 5 different status on approved report -> accepted
+2026-11-25T11:29:39.726796400Z | UT-09 | approval after same-status update (step 1)=true; step 4 compensating delete of 43e654a3-b42a-43fc-b062-111f09259bf8.jpg called=true; step 5 approval after status change=false
+2026-11-25T11:29:39.747383200Z | UT-10 | note null -> IllegalArgumentException: A non-empty note is required for public approval.; flag=false approver=null
+2026-11-25T11:29:39.750393400Z | UT-10 | note '' -> IllegalArgumentException: A non-empty note is required for public approval.; flag=false approver=null
+2026-11-25T11:29:39.752400100Z | UT-10 | note '   ' -> IllegalArgumentException: A non-empty note is required for public approval.; flag=false approver=null
+2026-11-25T11:29:39.753398300Z | UT-10 | valid note -> flag=true approver=42 time set=true
+2026-11-25T11:29:39.815009500Z | UT-12 | key ../x.jpg -> IllegalArgumentException: Invalid image storage key.
+2026-11-25T11:29:39.816017400Z | UT-12 | key abc.jpg -> IllegalArgumentException: Invalid image storage key.
+2026-11-25T11:29:39.817022100Z | UT-12 | key e3eee32d-de6d-4ac5-920f-8f69e8fc7fdf.gif -> IllegalArgumentException: Invalid image storage key.
+2026-11-25T11:29:39.819022600Z | UT-12 | key <UUID>.jpg (82b2da8c-fe22-45a2-a9ab-f1dde1e7b33a.jpg) -> stored inside the storage directory=true; read back 3 bytes
+2026-11-25T11:29:40.052899700Z | UT-13 | step 1 storage.delete called before commit=false, after commit for both keys=true
+2026-11-25T11:29:40.056896900Z | UT-13 | step 2 missing report -> ReportNotFoundException: null; step 3 database failure -> IllegalStateException: simulated database failure, storage untouched=true, HTTP 500 {"error":"Unable to delete report."}
+2026-11-25T11:29:40.060905600Z | UT-13 | step 4 file delete fails after commit -> accepted; error logged=true
+2026-11-25T11:29:40.072523500Z | UT-14 | jdbc:postgresql://localhost:5432/db -> true
+2026-11-25T11:29:40.074544400Z | UT-14 | jdbc:postgresql://127.0.0.1:5432/db -> true
+2026-11-25T11:29:40.078557400Z | UT-14 | jdbc:postgresql://[::1]:5432/db -> false (observed; not judged, RTM Q1)
+2026-11-25T11:29:40.079555800Z | UT-14 | jdbc:postgresql://db.remote.example:5432/db -> false
+2026-11-25T11:29:40.080558200Z | UT-14 | jdbc:mysql://localhost:3306/db -> false
+2026-11-25T11:29:40.099573200Z | UT-15 | step 1 missing name -> IllegalArgumentException: Admin setup input is invalid: administrator full name is missing.; saves=0
+2026-11-25T11:29:40.101572900Z | UT-15 | step 1 missing email -> IllegalArgumentException: Admin setup input is invalid: administrator email is missing.; saves=0
+2026-11-25T11:29:40.102572300Z | UT-15 | step 1 missing password -> IllegalArgumentException: Admin setup input is invalid: administrator password is missing.; saves=0
+2026-11-25T11:29:40.103568900Z | UT-15 | step 2 first run / second run -> CREATED (role ADMIN, email admin@qa.example.test) / ALREADY_CONFIGURED
+2026-11-25T11:29:40.103568900Z | UT-15 | step 3 existing citizen email -> IllegalStateException: The requested email already belongs to a non-admin account.
+2026-11-25T11:29:40.104567700Z | UT-15 | step 4 second admin email -> IllegalStateException: An administrator already exists; setup did not change any account.

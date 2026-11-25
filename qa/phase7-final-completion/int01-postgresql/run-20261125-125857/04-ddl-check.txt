@@ -1,0 +1,3 @@
+﻿Hibernate SQL statements matching create/alter/drop table|sequence|index in the two backend logs: 0
+Configured spring.jpa.hibernate.ddl-auto in backend/src/main/resources/application.yml (only configuration file):
+      ddl-auto: none

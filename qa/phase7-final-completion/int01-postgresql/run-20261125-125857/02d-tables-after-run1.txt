@@ -1,0 +1,9 @@
+﻿       table_name        
+-------------------------
+ flyway_schema_history
+ report_images
+ report_progress_updates
+ reports
+ users
+(5 rows)
+

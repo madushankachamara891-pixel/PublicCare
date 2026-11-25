@@ -1,0 +1,8 @@
+﻿CREATE ROLE publiccare_int01_app LOGIN PASSWORD '[not recorded]' NOSUPERUSER NOCREATEDB NOCREATEROLE -> OK
+CREATE DATABASE
+Tables in public schema before the first start:
+ tables_in_public 
+------------------
+                0
+(1 row)
+

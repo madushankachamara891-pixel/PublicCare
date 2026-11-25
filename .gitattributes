@@ -1,0 +1,6 @@
+# QA documentation and evidence (EC4206) are stored byte-for-byte.
+# Raw test logs and Surefire reports contain mixed CRLF/LF line endings, and the
+# SHA-256 records under qa/ were computed over the exact bytes. Disabling
+# end-of-line conversion keeps those records verifiable from any clone.
+qa/** -text
+SUBMISSION_INDEX.md -text

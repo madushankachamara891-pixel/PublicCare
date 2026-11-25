@@ -1,0 +1,48 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.16)
+
+2026-11-25T12:59:34.671+05:30  INFO 21476 --- [publiccare-backend] [           main] l.p.b.PublicCareBackendApplication       : Starting PublicCareBackendApplication v0.0.1-SNAPSHOT using Java 21.0.8 with PID 21476 (D:\4TH SEMESTER\Web Aplication project\Public care\publiccare\backend\target\publiccare-backend-0.0.1-SNAPSHOT.jar started by Chamara Madusanka in D:\4TH SEMESTER\Web Aplication project\Public care\publiccare\qa\phase7-final-completion\int01-postgresql\run-20261125-125857)
+2026-11-25T12:59:34.694+05:30  INFO 21476 --- [publiccare-backend] [           main] l.p.b.PublicCareBackendApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-11-25T12:59:37.118+05:30  INFO 21476 --- [publiccare-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-11-25T12:59:37.224+05:30  INFO 21476 --- [publiccare-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 88 ms. Found 4 JPA repository interfaces.
+2026-11-25T12:59:38.682+05:30  INFO 21476 --- [publiccare-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 18081 (http)
+2026-11-25T12:59:38.712+05:30  INFO 21476 --- [publiccare-backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-25T12:59:38.713+05:30  INFO 21476 --- [publiccare-backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.55]
+2026-11-25T12:59:38.762+05:30  INFO 21476 --- [publiccare-backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-11-25T12:59:38.764+05:30  INFO 21476 --- [publiccare-backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3973 ms
+2026-11-25T12:59:40.550+05:30  INFO 21476 --- [publiccare-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-25T12:59:41.277+05:30  INFO 21476 --- [publiccare-backend] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@f9b8129
+2026-11-25T12:59:41.282+05:30  INFO 21476 --- [publiccare-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-25T12:59:41.374+05:30  INFO 21476 --- [publiccare-backend] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/publiccare_int01_qa (PostgreSQL 18.6)
+2026-11-25T12:59:41.404+05:30  WARN 21476 --- [publiccare-backend] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.6 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 17.
+2026-11-25T12:59:41.509+05:30  INFO 21476 --- [publiccare-backend] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.070s)
+2026-11-25T12:59:41.549+05:30  INFO 21476 --- [publiccare-backend] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 5
+2026-11-25T12:59:41.555+05:30  INFO 21476 --- [publiccare-backend] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-25T12:59:41.747+05:30  INFO 21476 --- [publiccare-backend] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-11-25T12:59:41.869+05:30  INFO 21476 --- [publiccare-backend] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.53.Final
+2026-11-25T12:59:41.970+05:30  INFO 21476 --- [publiccare-backend] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-11-25T12:59:42.400+05:30  INFO 21476 --- [publiccare-backend] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-25T12:59:42.503+05:30  INFO 21476 --- [publiccare-backend] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-25T12:59:43.569+05:30  INFO 21476 --- [publiccare-backend] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-11-25T12:59:43.579+05:30  INFO 21476 --- [publiccare-backend] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-25T12:59:44.146+05:30  INFO 21476 --- [publiccare-backend] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name databaseUserDetailsService
+2026-11-25T12:59:44.835+05:30  INFO 21476 --- [publiccare-backend] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-11-25T12:59:45.528+05:30  INFO 21476 --- [publiccare-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 18081 (http) with context path '/'
+2026-11-25T12:59:45.558+05:30  INFO 21476 --- [publiccare-backend] [           main] l.p.b.PublicCareBackendApplication       : Started PublicCareBackendApplication in 12.054 seconds (process running for 12.863)
+2026-11-25T12:59:45.934+05:30  INFO 21476 --- [publiccare-backend] [.1-18081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-25T12:59:45.936+05:30  INFO 21476 --- [publiccare-backend] [.1-18081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-25T12:59:45.937+05:30  INFO 21476 --- [publiccare-backend] [.1-18081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms

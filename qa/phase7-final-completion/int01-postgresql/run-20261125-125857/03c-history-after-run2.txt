@@ -1,0 +1,9 @@
+﻿ installed_rank | version |          description           | type |                 script                 |  checksum   |     installed_by     | success 
+----------------+---------+--------------------------------+------+----------------------------------------+-------------+----------------------+---------
+              1 | 1       | create users                   | SQL  | V1__create_users.sql                   |  1270402808 | publiccare_int01_app | t
+              2 | 2       | create reports                 | SQL  | V2__create_reports.sql                 | -1680376027 | publiccare_int01_app | t
+              3 | 3       | create report images           | SQL  | V3__create_report_images.sql           |  -463647536 | publiccare_int01_app | t
+              4 | 4       | create report progress updates | SQL  | V4__create_report_progress_updates.sql |   797042922 | publiccare_int01_app | t
+              5 | 5       | add public report approvals    | SQL  | V5__add_public_report_approvals.sql    |  2097082266 | publiccare_int01_app | t
+(5 rows)
+
