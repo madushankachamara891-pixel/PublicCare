@@ -10,10 +10,23 @@ import jakarta.validation.constraints.Size;
 public final class AuthDtos {
     private AuthDtos() { }
 
+    /**
+     * Trims surrounding whitespace from an email at the API boundary, so that Bean Validation
+     * ({@code @Email}, {@code @Size}) checks the trimmed value. Lower-casing stays in the service layer.
+     * Only the email is trimmed; passwords are never changed.
+     */
+    static String trimEmail(String email) {
+        return email == null ? null : email.trim();
+    }
+
     public record RegisterRequest(
             @NotBlank @Size(max = 120) String fullName,
             @NotBlank @Email @Size(max = 254) String email,
             @NotBlank @Size(min = 12, max = 72) String password) {
+        public RegisterRequest {
+            email = trimEmail(email);
+        }
+
         @Override
         public String toString() {
             return "RegisterRequest[fullName=" + fullName + ", email=" + email + ", password=[REDACTED]]";
@@ -22,6 +35,10 @@ public final class AuthDtos {
 
     public record LoginRequest(@NotBlank @Email @Size(max = 254) String email,
                                @NotBlank @Size(max = 72) String password) {
+        public LoginRequest {
+            email = trimEmail(email);
+        }
+
         @Override
         public String toString() {
             return "LoginRequest[email=" + email + ", password=[REDACTED]]";
